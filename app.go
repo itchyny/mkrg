@@ -39,11 +39,11 @@ func (app *app) Run() error {
 	} else {
 		maxColumn = 1
 	}
-	width := ((termWidth+4)/maxColumn - 5) * 2
-	height := width / 16 * 4 * 3
+	width := (termWidth+4)/maxColumn - 4
+	height := width / 8 * 3
 	now := time.Now().Round(time.Minute)
-	from := now.Add(-time.Duration(width) * time.Minute)
-	lines := make([]string, height/4+1)
+	from := now.Add(-time.Duration(width*2) * time.Minute)
+	lines := make([]string, height)
 	for _, graph := range systemGraphs {
 		var metricNames []string
 		for _, metric := range graph.metrics {

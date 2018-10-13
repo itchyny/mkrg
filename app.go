@@ -27,7 +27,11 @@ func (app *app) Run() error {
 		return err
 	}
 	now := time.Now().Round(time.Minute)
-	from := now.Add(-3 * time.Hour)
+	from := now.Add(-2 * time.Hour)
+	height, width := 80, 120
+	var column int
+	maxColumn := 2
+	lines := make([]string, height/4+1)
 	for _, graph := range systemGraphs {
 		var metricNames []string
 		for _, metric := range graph.metrics {
@@ -44,9 +48,26 @@ func (app *app) Run() error {
 			}
 			ms.Add(metricName, metrics)
 		}
-		v := newViewer(graph, 100, 180)
-		for _, l := range v.GetLines(ms, from) {
-			fmt.Println(l)
+		v := newViewer(graph, height, width)
+		for i, l := range v.GetLines(ms, from) {
+			lines[i] += l
+			if column < maxColumn-1 {
+				lines[i] += "    "
+			}
+		}
+		if column == maxColumn-1 {
+			for i := range lines {
+				fmt.Println(lines[i])
+				lines[i] = ""
+			}
+			column = 0
+		} else {
+			column += 1
+		}
+	}
+	if column > 0 {
+		for i := range lines {
+			fmt.Println(lines[i])
 		}
 	}
 	return nil

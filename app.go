@@ -1,7 +1,6 @@
 package mkrg
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"time"
@@ -34,7 +33,7 @@ func (app *App) Run() error {
 	if err != nil {
 		return err
 	}
-	var column, maxColumn int
+	var maxColumn int
 	if termWidth > 160 {
 		maxColumn = 3
 	} else if termWidth > 80 {
@@ -46,7 +45,8 @@ func (app *App) Run() error {
 	height := width / 8 * 3
 	now := time.Now().Round(time.Minute)
 	from := now.Add(-time.Duration(width*2) * time.Minute)
-	lines := make([]string, height)
+	var ui ui
+	ui = newTui(height, width, maxColumn, now)
 	for _, graph := range systemGraphs {
 		var metricNames []string
 		for _, metric := range graph.metrics {
@@ -64,29 +64,11 @@ func (app *App) Run() error {
 			ms.Add(metricName, metrics)
 		}
 		ms.Stack(graph)
-		v := newViewer(graph, height, width)
-		for i, l := range v.GetLines(ms, now) {
-			lines[i] += l
-			if column < maxColumn-1 {
-				lines[i] += "    "
-			}
-		}
-		if column == maxColumn-1 {
-			for i := range lines {
-				fmt.Println(lines[i])
-				lines[i] = ""
-			}
-			column = 0
-		} else {
-			column++
+		if err := ui.output(graph, ms); err != nil {
+			return err
 		}
 	}
-	if column > 0 {
-		for i := range lines {
-			fmt.Println(lines[i])
-		}
-	}
-	return nil
+	return ui.cleanup()
 }
 
 func (app *App) getMetricNamesMap() (map[string]bool, error) {

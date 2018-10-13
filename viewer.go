@@ -49,12 +49,12 @@ func (v *viewer) GetLines(ms metricsByName, from time.Time) []string {
 	lines[0] = strings.Repeat(" ", int(math.Max(float64((v.width/2-len(v.graph.name)+1)/2), 0))) + v.graph.name
 	line := make([]rune, 90)
 	for i := v.height - 4; i >= 0; i -= 4 {
-		for j := 0; j < 180; j += 2 {
+		for j := 0; j < v.width; j += 2 {
 			line[j/2] = rune(0x2800 | dots[i+3][j] | dots[i+2][j]<<1 | dots[i+1][j]<<2 | dots[i+3][j+1]<<3 |
 				dots[i+2][j+1]<<4 | dots[i+1][j+1]<<5 | dots[i][j]<<6 | dots[i][j+1]<<7)
 		}
 		lines[(v.height-i)/4] = "|" + string(line)
 	}
-	lines[v.height/4] = "+" + strings.Repeat("-", 180/2)
+	lines[v.height/4] = "+" + strings.Repeat("-", v.width/2)
 	return lines
 }

@@ -7,12 +7,12 @@ import (
 )
 
 type viewer struct {
-	name          string
+	graph         graph
 	height, width int
 }
 
-func newViewer(name string, height, width int) *viewer {
-	return &viewer{name, height, width}
+func newViewer(graph graph, height, width int) *viewer {
+	return &viewer{graph, height, width}
 }
 
 func (v *viewer) GetLines(ms metricsByName, from time.Time) []string {
@@ -29,7 +29,7 @@ func (v *viewer) GetLines(ms metricsByName, from time.Time) []string {
 		}
 	}
 	lines := make([]string, v.height/4+1)
-	lines[0] = strings.Repeat(" ", int(math.Max(float64((v.width/2-len(v.name)+1)/2), 0))) + v.name
+	lines[0] = strings.Repeat(" ", int(math.Max(float64((v.width/2-len(v.graph.name)+1)/2), 0))) + v.graph.name
 	line := make([]rune, 90)
 	for i := v.height - 4; i >= 0; i -= 4 {
 		for j := 0; j < 180; j += 2 {

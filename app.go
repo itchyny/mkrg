@@ -2,7 +2,6 @@ package mkrg
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/mackerelio/mackerel-client-go"
@@ -23,14 +22,10 @@ func NewApp(client *mackerel.Client, hostID string) *app {
 func (app *app) Run() error {
 	now := time.Now().Round(time.Minute)
 	from := now.Add(-3 * time.Hour)
-	allMetricNames := []string{"loadavg1", "loadavg5", "loadavg15", "cpu.user.percentage", "cpu.system.percentage"}
-	graphNames := []string{"loadavg", "cpu"}
-	for _, graphName := range graphNames {
+	for _, graph := range systemGraphs {
 		var metricNames []string
-		for _, metricName := range allMetricNames {
-			if strings.HasPrefix(metricName, graphName) {
-				metricNames = append(metricNames, metricName)
-			}
+		for _, metric := range graph.metrics {
+			metricNames = append(metricNames, metric.name)
 		}
 		if len(metricNames) == 0 {
 			continue
@@ -43,7 +38,7 @@ func (app *app) Run() error {
 			}
 			ms.Add(metricName, metrics)
 		}
-		v := newViewer(graphName, 100, 180)
+		v := newViewer(graph, 100, 180)
 		for _, l := range v.GetLines(ms, from) {
 			fmt.Println(l)
 		}

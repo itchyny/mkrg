@@ -25,12 +25,12 @@ func (v *viewer) GetLines(ms metricsByName, from time.Time) []string {
 		if !metric.stacked {
 			continue
 		}
-		if ms, ok := ms[metric.name]; ok {
-			for i, m := range ms {
-				w := ms[i].Value.(float64)
+		if metrics, ok := ms[metric.name]; ok {
+			for i, m := range metrics {
+				w := metrics[i].Value.(float64)
 				if v, ok := stackedValue[m.Time]; ok {
 					stackedValue[m.Time] = v + w
-					ms[i].Value = v + w
+					metrics[i].Value = v + w
 				} else {
 					stackedValue[m.Time] = w
 				}

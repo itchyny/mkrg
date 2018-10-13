@@ -25,32 +25,19 @@ func (app *app) Run() error {
 	now := time.Now().Round(time.Minute)
 	from := now.Add(-3 * time.Hour)
 	metricNames := []string{"loadavg1", "loadavg5", "loadavg15"}
-	metricsByName := make(map[string][]mackerel.MetricValue, len(metricNames))
+	metricsByName := make(metricsByName, len(metricNames))
 	for _, metricName := range metricNames {
 		metrics, err := app.client.FetchHostMetricValues(app.hostID, metricName, from.Unix(), now.Unix())
 		if err != nil {
 			return err
 		}
-		metricsByName[metricName] = metrics
+		metricsByName.Add(metricName, metrics)
 	}
 	dots := make([][]int, 100)
 	for i := range dots {
 		dots[i] = make([]int, 180)
 	}
-	maxValue := 0.0
-	for _, metrics := range metricsByName {
-		for _, m := range metrics {
-			v := m.Value.(float64)
-			if v > maxValue {
-				maxValue = v
-			}
-		}
-	}
-	if maxValue == math.MaxFloat64 || maxValue <= 0 {
-		maxValue = 1.0
-	} else {
-		maxValue *= 1.1
-	}
+	maxValue := math.Max(metricsByName.MaxValue(), 1.0) * 1.1
 	for _, metrics := range metricsByName {
 		for _, m := range metrics {
 			x := (m.Time - from.Unix()) / 60

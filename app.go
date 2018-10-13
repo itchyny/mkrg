@@ -63,6 +63,7 @@ func (app *App) Run() error {
 			}
 			ms.Add(metricName, metrics)
 		}
+		ms.Stack(graph)
 		v := newViewer(graph, height, width)
 		for i, l := range v.GetLines(ms, now) {
 			lines[i] += l

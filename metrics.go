@@ -20,3 +20,23 @@ func (ms metricsByName) MaxValue() float64 {
 	}
 	return maxValue
 }
+
+func (ms metricsByName) Stack(graph graph) {
+	stackedValue := make(map[int64]float64)
+	for _, metric := range graph.metrics {
+		if !metric.stacked {
+			continue
+		}
+		if metrics, ok := ms[metric.name]; ok {
+			for i, m := range metrics {
+				w := metrics[i].Value.(float64)
+				if v, ok := stackedValue[m.Time]; ok {
+					stackedValue[m.Time] = v + w
+					metrics[i].Value = v + w
+				} else {
+					stackedValue[m.Time] = w
+				}
+			}
+		}
+	}
+}

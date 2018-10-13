@@ -21,23 +21,6 @@ func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
 	for i := range dots {
 		dots[i] = make([]int, w)
 	}
-	stackedValue := make(map[int64]float64)
-	for _, metric := range v.graph.metrics {
-		if !metric.stacked {
-			continue
-		}
-		if metrics, ok := ms[metric.name]; ok {
-			for i, m := range metrics {
-				w := metrics[i].Value.(float64)
-				if v, ok := stackedValue[m.Time]; ok {
-					stackedValue[m.Time] = v + w
-					metrics[i].Value = v + w
-				} else {
-					stackedValue[m.Time] = w
-				}
-			}
-		}
-	}
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
 	from := until.Unix() - int64(w)*60
 	for _, metrics := range ms {

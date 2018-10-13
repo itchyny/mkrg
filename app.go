@@ -2,6 +2,8 @@ package mkrg
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/mackerelio/mackerel-client-go"
@@ -29,9 +31,7 @@ func (app *app) Run() error {
 	for _, graph := range systemGraphs {
 		var metricNames []string
 		for _, metric := range graph.metrics {
-			if metricNamesMap[metric.name] {
-				metricNames = append(metricNames, metric.name)
-			}
+			metricNames = append(metricNames, filterMetricNames(metricNamesMap, metric.name)...)
 		}
 		if len(metricNames) == 0 {
 			continue
@@ -62,4 +62,20 @@ func (app *app) getMetricNamesMap() (map[string]bool, error) {
 		metricNamesMap[metricName] = true
 	}
 	return metricNamesMap, nil
+}
+
+func filterMetricNames(metricNamesMap map[string]bool, name string) []string {
+	if metricNamesMap[name] {
+		return []string{name}
+	}
+	namePattern := regexp.MustCompile(
+		"^" + strings.Replace(name, "#", `[-a-zA-Z0-9_]+`, -1) + "$",
+	)
+	var metricNames []string
+	for metricName := range metricNamesMap {
+		if namePattern.MatchString(metricName) {
+			metricNames = append(metricNames, metricName)
+		}
+	}
+	return metricNames
 }

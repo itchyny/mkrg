@@ -3,6 +3,7 @@ package mkrg
 import (
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/mackerelio/mackerel-client-go"
@@ -57,13 +58,14 @@ func (app *app) Run() error {
 			dots[y][x] = 1
 		}
 	}
+	line := make([]rune, 90)
 	for i := 100 - 4; i >= 0; i -= 4 {
 		for j := 0; j < 180; j += 2 {
-			b := (0x2800 | dots[i+3][j] | dots[i+2][j]<<1 | dots[i+1][j]<<2 | dots[i+3][j+1]<<3 |
+			line[j/2] = rune(0x2800 | dots[i+3][j] | dots[i+2][j]<<1 | dots[i+1][j]<<2 | dots[i+3][j+1]<<3 |
 				dots[i+2][j+1]<<4 | dots[i+1][j+1]<<5 | dots[i][j]<<6 | dots[i][j+1]<<7)
-			fmt.Printf("%c", rune(b))
 		}
-		fmt.Printf("\n")
+		fmt.Printf("|%s\n", string(line))
 	}
+	fmt.Printf("+%s\n", strings.Repeat("-", 180/2))
 	return nil
 }

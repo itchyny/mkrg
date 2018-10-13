@@ -77,7 +77,7 @@ func (app *App) Run() error {
 			}
 			column = 0
 		} else {
-			column += 1
+			column++
 		}
 	}
 	if column > 0 {

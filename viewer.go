@@ -16,7 +16,7 @@ func newViewer(graph graph, height, width int) *viewer {
 }
 
 func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
-	h, w := (v.height-1)*4, (v.width-1)*2
+	h, w := (v.height-2)*4, (v.width-1)*2
 	dots := make([][]int, h)
 	for i := range dots {
 		dots[i] = make([]int, w)

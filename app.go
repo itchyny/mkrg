@@ -10,19 +10,22 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-type app struct {
+// App ...
+type App struct {
 	client *mackerel.Client
 	hostID string
 }
 
-func NewApp(client *mackerel.Client, hostID string) *app {
-	return &app{
+// NewApp creates a new app.
+func NewApp(client *mackerel.Client, hostID string) *App {
+	return &App{
 		client: client,
 		hostID: hostID,
 	}
 }
 
-func (app *app) Run() error {
+// Run the app.
+func (app *App) Run() error {
 	metricNamesMap, err := app.getMetricNamesMap()
 	if err != nil {
 		return err
@@ -85,7 +88,7 @@ func (app *app) Run() error {
 	return nil
 }
 
-func (app *app) getMetricNamesMap() (map[string]bool, error) {
+func (app *App) getMetricNamesMap() (map[string]bool, error) {
 	metricNames, err := app.client.ListHostMetricNames(app.hostID)
 	if err != nil {
 		return nil, err

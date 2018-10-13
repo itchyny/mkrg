@@ -15,7 +15,7 @@ func newViewer(graph graph, height, width int) *viewer {
 	return &viewer{graph, height, width}
 }
 
-func (v *viewer) GetLines(ms metricsByName, from time.Time) []string {
+func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
 	h, w := (v.height-1)*4, (v.width-1)*2
 	dots := make([][]int, h)
 	for i := range dots {
@@ -39,9 +39,10 @@ func (v *viewer) GetLines(ms metricsByName, from time.Time) []string {
 		}
 	}
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
+	from := until.Unix() - int64(w)*60
 	for _, metrics := range ms {
 		for _, m := range metrics {
-			x := int((m.Time - from.Unix()) / 60)
+			x := int((m.Time - from) / 60)
 			y := int(m.Value.(float64) / maxValue * float64(h))
 			if 0 <= x && x < w {
 				dots[y][x] = 1

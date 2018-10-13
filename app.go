@@ -61,7 +61,7 @@ func (app *app) Run() error {
 			ms.Add(metricName, metrics)
 		}
 		v := newViewer(graph, height, width)
-		for i, l := range v.GetLines(ms, from) {
+		for i, l := range v.GetLines(ms, now) {
 			lines[i] += l
 			if column < maxColumn-1 {
 				lines[i] += "    "

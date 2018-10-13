@@ -27,15 +27,22 @@ func (app *app) Run() error {
 	if err != nil {
 		return err
 	}
-	termWidth, termHeight, err := terminal.GetSize(0)
+	termWidth, _, err := terminal.GetSize(0)
 	if err != nil {
 		return err
 	}
-	height, width := (termHeight/2-1)*4, (termWidth-6)/2*2
+	var column, maxColumn int
+	if termWidth > 160 {
+		maxColumn = 3
+	} else if termWidth > 80 {
+		maxColumn = 2
+	} else {
+		maxColumn = 1
+	}
+	width := ((termWidth+4)/maxColumn - 5) * 2
+	height := width / 16 * 4 * 3
 	now := time.Now().Round(time.Minute)
 	from := now.Add(-time.Duration(width) * time.Minute)
-	var column int
-	maxColumn := 2
 	lines := make([]string, height/4+1)
 	for _, graph := range systemGraphs {
 		var metricNames []string

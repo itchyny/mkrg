@@ -49,4 +49,25 @@ var systemGraphs = []graph{
 			metric{"memory.swap_total", false},
 		},
 	},
+	graph{
+		name: "disk",
+		metrics: []metric{
+			metric{"disk.#.reads.delta", false},
+			metric{"disk.#.writes.delta", false},
+		},
+	},
+	graph{
+		name: "interface",
+		metrics: []metric{
+			metric{"interface.#.rxBytes.delta", false},
+			metric{"interface.#.txBytes.delta", false},
+		},
+	},
+	graph{
+		name: "filesystem",
+		metrics: []metric{
+			metric{"filesystem.#.used", false},
+			metric{"filesystem.#.size", false},
+		},
+	},
 }

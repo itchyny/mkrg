@@ -43,8 +43,8 @@ func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
 	for _, metrics := range ms {
 		for _, m := range metrics {
 			x := int((m.Time - from) / 60)
-			y := int(m.Value.(float64) / maxValue * float64(h))
 			if 0 <= x && x < w {
+				y := int(m.Value.(float64) / maxValue * float64(h))
 				dots[y][x] = 1
 			}
 		}

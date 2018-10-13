@@ -43,10 +43,10 @@ func (app *App) Run() error {
 	}
 	width := (termWidth+4)/maxColumn - 4
 	height := width / 8 * 3
-	now := time.Now().Round(time.Minute)
-	from := now.Add(-time.Duration(width*2) * time.Minute)
+	until := time.Now().Round(time.Minute)
+	from := until.Add(-time.Duration(width*2) * time.Minute)
 	var ui ui
-	ui = newTui(height, width, maxColumn, now)
+	ui = newTui(height, width, maxColumn, until)
 	for _, graph := range systemGraphs {
 		var metricNames []string
 		for _, metric := range graph.metrics {
@@ -57,7 +57,7 @@ func (app *App) Run() error {
 		}
 		ms := make(metricsByName, len(metricNames))
 		for _, metricName := range metricNames {
-			metrics, err := app.client.FetchHostMetricValues(app.hostID, metricName, from.Unix(), now.Unix())
+			metrics, err := app.client.FetchHostMetricValues(app.hostID, metricName, from.Unix(), until.Unix())
 			if err != nil {
 				return err
 			}

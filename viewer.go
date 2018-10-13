@@ -53,7 +53,7 @@ func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
 	leftPadding := int(math.Max(float64((v.width-len(v.graph.name)+1)/2), 0))
 	lines[0] = strings.Repeat(" ", leftPadding) + v.graph.name
 	lines[0] += strings.Repeat(" ", int(math.Max(float64(v.width-len(lines[0])+1), 0)))
-	line := make([]rune, 90)
+	line := make([]rune, w/2)
 	for i := h - 4; i >= 0; i -= 4 {
 		for j := 0; j < w; j += 2 {
 			line[j/2] = rune(0x2800 | dots[i+3][j] | dots[i+2][j]<<1 | dots[i+1][j]<<2 | dots[i+3][j+1]<<3 |

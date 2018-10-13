@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/mackerelio/mackerel-client-go"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type app struct {
@@ -26,9 +27,13 @@ func (app *app) Run() error {
 	if err != nil {
 		return err
 	}
+	termWidth, termHeight, err := terminal.GetSize(0)
+	if err != nil {
+		return err
+	}
+	height, width := (termHeight/2-1)*4, (termWidth-6)/2*2
 	now := time.Now().Round(time.Minute)
-	from := now.Add(-2 * time.Hour)
-	height, width := 80, 120
+	from := now.Add(-time.Duration(width) * time.Minute)
 	var column int
 	maxColumn := 2
 	lines := make([]string, height/4+1)

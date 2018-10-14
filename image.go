@@ -147,7 +147,7 @@ func drawAxisY(img draw.Image, height, width, graphLeftMargin int, from, until t
 		}
 		if y == 0.0 {
 			d.DrawString("   0")
-		} else {
+		} else if y/maxValue < 0.985 {
 			d.DrawString(fmt.Sprintf("%4s", fmt.Sprintf(format, y/scale)))
 		}
 	}

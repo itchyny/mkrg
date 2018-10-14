@@ -3,8 +3,6 @@ package mkrg
 import (
 	"image"
 	"image/color"
-	"image/png"
-	"io"
 	"math"
 	"time"
 )
@@ -13,25 +11,24 @@ var (
 	borderColor = color.RGBA{0xff, 0xff, 0xff, 0x88}
 )
 
-func printImage(writer io.Writer, graph graph, ms metricsByName, height, width int, from, until time.Time) error {
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
+func printImage(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) error {
 	c := color.RGBA{0x63, 0xba, 0xc6, 0xff}
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
 	imgSet := func(x, y int, c color.RGBA) {
 		pointSize := 2
 		for i := 0; i < pointSize; i++ {
 			for j := 0; j < pointSize; j++ {
-				img.Set(x+i, height-(y+j), c)
+				img.Set(leftMargin+x+i, height-(y+j), c)
 			}
 		}
 	}
 	for i := 0; i < width; i++ {
-		img.Set(i, 0, borderColor)
-		img.Set(i, height-1, borderColor)
+		img.Set(leftMargin+i, 0, borderColor)
+		img.Set(leftMargin+i, height-1, borderColor)
 	}
 	for i := 0; i < height; i++ {
-		img.Set(0, i, borderColor)
-		img.Set(width-1, i, borderColor)
+		img.Set(leftMargin, i, borderColor)
+		img.Set(leftMargin+width-1, i, borderColor)
 	}
 	prevX, prevY := -1, 0
 	for _, metrics := range ms {
@@ -48,5 +45,5 @@ func printImage(writer io.Writer, graph graph, ms metricsByName, height, width i
 		}
 		prevX, prevY = -1, 0
 	}
-	return png.Encode(writer, img)
+	return nil
 }

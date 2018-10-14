@@ -12,6 +12,12 @@ var (
 )
 
 func printImage(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) error {
+	drawGraph(img, graph, ms, height, width, leftMargin, from, until)
+	drawBorder(img, height, width, leftMargin)
+	return nil
+}
+
+func drawGraph(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) {
 	c := color.RGBA{0x63, 0xba, 0xc6, 0xff}
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
 	imgSet := func(x, y int, c color.RGBA) {
@@ -21,14 +27,6 @@ func printImage(img *image.RGBA, graph graph, ms metricsByName, height, width, l
 				img.Set(leftMargin+x+i, height-(y+j), c)
 			}
 		}
-	}
-	for i := 0; i < width; i++ {
-		img.Set(leftMargin+i, 0, borderColor)
-		img.Set(leftMargin+i, height-1, borderColor)
-	}
-	for i := 0; i < height; i++ {
-		img.Set(leftMargin, i, borderColor)
-		img.Set(leftMargin+width-1, i, borderColor)
 	}
 	prevX, prevY := -1, 0
 	for _, metrics := range ms {
@@ -45,5 +43,15 @@ func printImage(img *image.RGBA, graph graph, ms metricsByName, height, width, l
 		}
 		prevX, prevY = -1, 0
 	}
-	return nil
+}
+
+func drawBorder(img *image.RGBA, height, width, leftMargin int) {
+	for i := 0; i < width; i++ {
+		img.Set(leftMargin+i, 0, borderColor)
+		img.Set(leftMargin+i, height-1, borderColor)
+	}
+	for i := 0; i < height; i++ {
+		img.Set(leftMargin, i, borderColor)
+		img.Set(leftMargin+width-1, i, borderColor)
+	}
 }

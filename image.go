@@ -21,6 +21,7 @@ var (
 func printImage(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) error {
 	drawGraph(img, graph, ms, height, width, leftMargin, from, until)
 	drawBorder(img, height, width, leftMargin)
+	drawTitle(img, width, leftMargin, graph.name)
 	return nil
 }
 
@@ -90,4 +91,14 @@ func drawBorder(img *image.RGBA, height, width, leftMargin int) {
 		img.Set(leftMargin, i, borderColor)
 		img.Set(leftMargin+width-1, i, borderColor)
 	}
+}
+
+func drawTitle(img *image.RGBA, width, leftMargin int, title string) {
+	d := &font.Drawer{
+		Dst:  img,
+		Src:  image.NewUniform(axisColor),
+		Face: inconsolata.Bold8x16,
+		Dot:  fixed.P(leftMargin+width/2-len(title)*4, 20),
+	}
+	d.DrawString(title)
 }

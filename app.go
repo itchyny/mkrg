@@ -45,12 +45,14 @@ func (app *App) Run() error {
 	width := (termWidth+4)/maxColumn - 4
 	height := width / 8 * 3
 	until := time.Now().Round(time.Minute)
-	from := until.Add(-time.Duration(width*2) * time.Minute)
+	from := until.Add(-time.Duration(width*3) * time.Minute)
 	var ui ui
-	if os.Getenv("TERM_PROGRAM") == "iTerm.app" {
-		from = until.Add(-time.Duration(width*3) * time.Minute)
+	if os.Getenv("TERM_PROGRAM") == "iTerm.app" || os.Getenv("MKRG_VIEWER") == "iTerm2" {
 		ui = newIterm2UI(height, width, maxColumn, from, until)
+	} else if os.Getenv("MKRG_VIEWER") == "Sixel" {
+		ui = newSixel(height, width, maxColumn, from, until)
 	} else {
+		from = until.Add(-time.Duration(width*2) * time.Minute)
 		ui = newTui(height, width, maxColumn, until)
 	}
 	for _, graph := range systemGraphs {

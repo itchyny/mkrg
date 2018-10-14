@@ -1,6 +1,10 @@
 package mkrg
 
-import "github.com/mackerelio/mackerel-client-go"
+import (
+	"sort"
+
+	"github.com/mackerelio/mackerel-client-go"
+)
 
 type metricsByName map[string][]mackerel.MetricValue
 
@@ -39,4 +43,13 @@ func (ms metricsByName) Stack(graph graph) {
 			}
 		}
 	}
+}
+
+func (ms metricsByName) MetricNames() []string {
+	metricNames := make([]string, 0, len(ms))
+	for name := range ms {
+		metricNames = append(metricNames, name)
+	}
+	sort.Strings(metricNames)
+	return metricNames
 }

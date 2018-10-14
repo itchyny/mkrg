@@ -13,9 +13,33 @@ import (
 )
 
 var (
-	borderColor = color.RGBA{0xff, 0xff, 0xff, 0x88}
-	axisColor   = color.RGBA{0xff, 0xff, 0xff, 0xff}
-	tickColor   = color.RGBA{0xff, 0xff, 0xff, 0xaa}
+	borderColor  = color.RGBA{0xff, 0xff, 0xff, 0x88}
+	axisColor    = color.RGBA{0xff, 0xff, 0xff, 0xff}
+	tickColor    = color.RGBA{0xff, 0xff, 0xff, 0xaa}
+	seriesColors = []color.RGBA{
+		color.RGBA{0x63, 0xba, 0xc6, 0xff},
+		color.RGBA{0xcc, 0x99, 0x00, 0xff},
+		color.RGBA{0x81, 0x71, 0xb3, 0xff},
+		color.RGBA{0x80, 0x9e, 0x10, 0xff},
+		color.RGBA{0xb2, 0x66, 0x32, 0xff},
+		color.RGBA{0x36, 0x99, 0x7d, 0xff},
+		color.RGBA{0xb7, 0x95, 0x69, 0xff},
+		color.RGBA{0x32, 0x6e, 0xc6, 0xff},
+		color.RGBA{0x9c, 0x91, 0x00, 0xff},
+		color.RGBA{0x53, 0x7c, 0x48, 0xff},
+		color.RGBA{0xc9, 0x5b, 0x75, 0xff},
+		color.RGBA{0x00, 0x5c, 0x9b, 0xff},
+		color.RGBA{0x96, 0x75, 0x5a, 0xff},
+		color.RGBA{0x67, 0xb0, 0x7d, 0xff},
+		color.RGBA{0x5f, 0x83, 0xb8, 0xff},
+		color.RGBA{0xa3, 0xa3, 0xe2, 0xff},
+		color.RGBA{0x83, 0x9b, 0x4d, 0xff},
+		color.RGBA{0xba, 0x55, 0x9b, 0xff},
+		color.RGBA{0x3a, 0x8c, 0x86, 0xff},
+		color.RGBA{0xb5, 0x83, 0x13, 0xff},
+		color.RGBA{0x9e, 0x7f, 0x68, 0xff},
+		color.RGBA{0x56, 0x54, 0xaf, 0xff},
+	}
 )
 
 func printImage(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) error {
@@ -34,7 +58,6 @@ func drawGraph(img *image.RGBA, graph graph, ms metricsByName, height, width, le
 }
 
 func drawSeries(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time, maxValue float64) {
-	c := color.RGBA{0x63, 0xba, 0xc6, 0xff}
 	imgSet := func(x, y int, c color.RGBA) {
 		pointSize := 2
 		for i := 0; i < pointSize; i++ {
@@ -44,14 +67,15 @@ func drawSeries(img *image.RGBA, graph graph, ms metricsByName, height, width, l
 		}
 	}
 	prevX, prevY := -1, 0
-	for _, metrics := range ms {
+	for i, metricName := range ms.MetricNames() {
+		metrics, seriesColor := ms[metricName], seriesColors[i%len(seriesColors)]
 		for _, m := range metrics {
 			x := int(m.Time-from.Unix()) * width / int(until.Sub(from)/time.Second)
 			y := int(m.Value.(float64) / maxValue * float64(height))
 			if 0 <= x && 0 <= prevX && prevX < x {
 				step := int(math.Max(math.Sqrt(float64((x-prevX)*(x-prevX)+(y-prevY)*(y-prevY)))/2.0, 5.0))
 				for i := 1; i <= step; i++ {
-					imgSet(int(float64(prevX*(step-i)+x*i)/float64(step)), int((float64(prevY*(step-i)+y*i))/float64(step)), c)
+					imgSet(int(float64(prevX*(step-i)+x*i)/float64(step)), int((float64(prevY*(step-i)+y*i))/float64(step)), seriesColor)
 				}
 			}
 			prevX, prevY = x, y

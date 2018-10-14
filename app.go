@@ -71,6 +71,7 @@ func (app *App) Run() error {
 			}
 			ms.Add(metricName, metrics)
 		}
+		ms.AddMemorySwapUsed()
 		ms.Stack(graph)
 		if err := ui.output(graph, ms); err != nil {
 			return err
@@ -94,6 +95,11 @@ func (app *App) getMetricNamesMap() (map[string]bool, error) {
 func filterMetricNames(metricNamesMap map[string]bool, name string) []string {
 	if metricNamesMap[name] {
 		return []string{name}
+	}
+	if name == "memory.swap_used" {
+		if metricNamesMap["memory.swap_total"] && metricNamesMap["memory.swap_free"] {
+			return []string{"memory.swap_free"}
+		}
 	}
 	namePattern := regexp.MustCompile(
 		"^" + strings.Replace(name, "#", `[-a-zA-Z0-9_]+`, -1) + "$",

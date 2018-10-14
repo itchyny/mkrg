@@ -49,7 +49,7 @@ func (app *App) Run() error {
 	var ui ui
 	if os.Getenv("TERM_PROGRAM") == "iTerm.app" {
 		from = until.Add(-time.Duration(width*3) * time.Minute)
-		ui = newIterm2(height, width, maxColumn, from, until)
+		ui = newIterm2UI(height, width, maxColumn, from, until)
 	} else {
 		ui = newTui(height, width, maxColumn, until)
 	}

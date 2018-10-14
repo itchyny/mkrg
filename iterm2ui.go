@@ -9,18 +9,18 @@ import (
 	"time"
 )
 
-type iterm2 struct {
+type iterm2UI struct {
 	height, width     int
 	column, maxColumn int
 	from, until       time.Time
 	img               *image.RGBA
 }
 
-func newIterm2(height, width, maxColumn int, from, until time.Time) *iterm2 {
-	return &iterm2{height, width, 0, maxColumn, from, until, nil}
+func newIterm2UI(height, width, maxColumn int, from, until time.Time) *iterm2UI {
+	return &iterm2UI{height, width, 0, maxColumn, from, until, nil}
 }
 
-func (ui *iterm2) output(graph graph, ms metricsByName) error {
+func (ui *iterm2UI) output(graph graph, ms metricsByName) error {
 	imgHeight, imgWidth, padding := ui.height*20, ui.width*12, ui.width/5
 	if ui.column == 0 {
 		ui.img = image.NewRGBA(image.Rect(0, 0, (imgWidth+padding)*ui.maxColumn-padding, imgHeight+padding))
@@ -37,7 +37,7 @@ func (ui *iterm2) output(graph graph, ms metricsByName) error {
 	return nil
 }
 
-func (ui *iterm2) cleanup() error {
+func (ui *iterm2UI) cleanup() error {
 	if ui.column > 0 {
 		buf := new(bytes.Buffer)
 		if err := png.Encode(buf, ui.img); err != nil {

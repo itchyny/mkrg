@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image"
 	"image/png"
+	"os"
 	"time"
 )
 
@@ -43,9 +44,26 @@ func (ui *iterm2UI) cleanup() error {
 		if err := png.Encode(buf, ui.img); err != nil {
 			return err
 		}
-		fmt.Print("\x1b]1337;File=inline=1;preserveAspectRatio=1;width=100%:")
+		printOSC()
+		fmt.Print("1337;File=inline=1;preserveAspectRatio=1;width=100%:")
 		fmt.Print(base64.StdEncoding.EncodeToString(buf.Bytes()))
-		fmt.Print("\x07\n")
+		printST()
 	}
 	return nil
+}
+
+func printOSC() {
+	if os.Getenv("TMUX") != "" {
+		fmt.Print("\x1bPtmux;\x1b\x1b]")
+	} else {
+		fmt.Print("\x1b]")
+	}
+}
+
+func printST() {
+	if os.Getenv("TMUX") != "" {
+		fmt.Print("\x07\x1b\\\n")
+	} else {
+		fmt.Print("\x07\n")
+	}
 }

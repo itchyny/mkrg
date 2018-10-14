@@ -48,7 +48,8 @@ func (app *App) Run() error {
 	from := until.Add(-time.Duration(width*2) * time.Minute)
 	var ui ui
 	if os.Getenv("TERM_PROGRAM") == "iTerm.app" {
-		ui = newIterm2(height, width, until)
+		from = until.Add(-time.Duration(width*3) * time.Minute)
+		ui = newIterm2(height, width, from, until)
 	} else {
 		ui = newTui(height, width, maxColumn, until)
 	}

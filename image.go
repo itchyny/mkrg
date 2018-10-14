@@ -18,7 +18,7 @@ func printImage(writer io.Writer, graph graph, ms metricsByName, height, width i
 	c := color.RGBA{0x63, 0xba, 0xc6, 0xff}
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
 	imgSet := func(x, y int, c color.RGBA) {
-		pointSize := 3
+		pointSize := 2
 		for i := 0; i < pointSize; i++ {
 			for j := 0; j < pointSize; j++ {
 				img.Set(x+i, height-(y+j), c)
@@ -38,13 +38,10 @@ func printImage(writer io.Writer, graph graph, ms metricsByName, height, width i
 		for _, m := range metrics {
 			x := int(m.Time-from.Unix()) * width / int(until.Sub(from)/time.Second)
 			y := int(m.Value.(float64) / maxValue * float64(height))
-			if 0 <= x {
-				imgSet(x, y, c)
-				if 0 <= prevX && prevX < x {
-					step := int(math.Max(math.Sqrt(float64((x-prevX)*(x-prevX)+(y-prevY)*(y-prevY)))/2.5, 5.0))
-					for i := 1; i < step; i++ {
-						imgSet(int(float64(prevX*(step-i)+x*i)/float64(step)), int((float64(prevY*(step-i)+y*i))/float64(step)), c)
-					}
+			if 0 <= x && 0 <= prevX && prevX < x {
+				step := int(math.Max(math.Sqrt(float64((x-prevX)*(x-prevX)+(y-prevY)*(y-prevY)))/2.0, 5.0))
+				for i := 1; i <= step; i++ {
+					imgSet(int(float64(prevX*(step-i)+x*i)/float64(step)), int((float64(prevY*(step-i)+y*i))/float64(step)), c)
 				}
 			}
 			prevX, prevY = x, y

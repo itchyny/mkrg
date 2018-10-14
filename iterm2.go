@@ -21,7 +21,7 @@ func newIterm2(height, width, maxColumn int, from, until time.Time) *iterm2 {
 }
 
 func (ui *iterm2) output(graph graph, ms metricsByName) error {
-	imgHeight, imgWidth, padding := ui.height*24, ui.width*16, ui.width/5
+	imgHeight, imgWidth, padding := ui.height*20, ui.width*12, ui.width/5
 	if ui.column == 0 {
 		ui.img = image.NewRGBA(image.Rect(0, 0, (imgWidth+padding)*ui.maxColumn-padding, imgHeight+padding))
 	}

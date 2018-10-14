@@ -25,7 +25,7 @@ func (ui *sixelUI) output(graph graph, ms metricsByName) error {
 	if ui.column == 0 {
 		ui.img = image.NewRGBA(image.Rect(0, 0, (imgWidth+padding)*ui.maxColumn-padding, imgHeight+padding*2))
 	}
-	printImage(&Image{ui.img, padding, (imgWidth + padding) * ui.column}, graph, ms, imgHeight, imgWidth, ui.from, ui.until)
+	printImage(&imageWithMargins{ui.img, padding, (imgWidth + padding) * ui.column}, graph, ms, imgHeight, imgWidth, ui.from, ui.until)
 	if ui.column == ui.maxColumn-1 {
 		if err := ui.cleanup(); err != nil {
 			return err

@@ -1,6 +1,7 @@
 package mkrg
 
 import (
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -46,7 +47,11 @@ func (app *App) Run() error {
 	until := time.Now().Round(time.Minute)
 	from := until.Add(-time.Duration(width*2) * time.Minute)
 	var ui ui
-	ui = newTui(height, width, maxColumn, until)
+	if os.Getenv("TERM_PROGRAM") == "iTerm.app" {
+		ui = newIterm2(height, width, until)
+	} else {
+		ui = newTui(height, width, maxColumn, until)
+	}
 	for _, graph := range systemGraphs {
 		var metricNames []string
 		for _, metric := range graph.metrics {

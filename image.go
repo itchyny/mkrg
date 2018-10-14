@@ -44,11 +44,12 @@ var (
 )
 
 type Image struct {
-	img *image.RGBA
+	img        draw.Image
+	leftMargin int
 }
 
 func (img *Image) Set(x, y int, c color.Color) {
-	img.img.Set(x, y, c)
+	img.img.Set(x+img.leftMargin, y, c)
 }
 func (img *Image) ColorModel() color.Model {
 	return img.img.ColorModel()
@@ -57,30 +58,30 @@ func (img *Image) Bounds() image.Rectangle {
 	return img.img.Bounds()
 }
 func (img *Image) At(x, y int) color.Color {
-	return img.img.At(x, y)
+	return img.img.At(x+img.leftMargin, y)
 }
 
-func printImage(img draw.Image, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) error {
-	drawGraph(img, graph, ms, height, width, leftMargin, from, until)
-	drawBorder(img, height, width, leftMargin)
-	drawTitle(img, width, leftMargin, graph.name)
+func printImage(img draw.Image, graph graph, ms metricsByName, height, width int, from, until time.Time) error {
+	drawGraph(img, graph, ms, height, width, from, until)
+	drawBorder(img, height, width)
+	drawTitle(img, width, graph.name)
 	return nil
 }
 
-func drawGraph(img draw.Image, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) {
+func drawGraph(img draw.Image, graph graph, ms metricsByName, height, width int, from, until time.Time) {
 	graphLeftMargin, bottomMargin := 48, 30
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
-	drawAxisX(img, height, width, leftMargin, graphLeftMargin, bottomMargin, from, until)
-	drawAxisY(img, height, width, leftMargin, graphLeftMargin, bottomMargin, from, until, maxValue)
-	drawSeries(img, graph, ms, height-bottomMargin, width-graphLeftMargin, leftMargin+graphLeftMargin, from, until, maxValue)
+	drawAxisX(img, height, width, graphLeftMargin, bottomMargin, from, until)
+	drawAxisY(img, height, width, graphLeftMargin, bottomMargin, from, until, maxValue)
+	drawSeries(&Image{img, graphLeftMargin}, graph, ms, height-bottomMargin, width-graphLeftMargin, from, until, maxValue)
 }
 
-func drawSeries(img draw.Image, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time, maxValue float64) {
+func drawSeries(img draw.Image, graph graph, ms metricsByName, height, width int, from, until time.Time, maxValue float64) {
 	imgSet := func(x, y int, c color.RGBA) {
 		pointSize := 2
 		for i := 0; i < pointSize; i++ {
 			for j := 0; j < pointSize; j++ {
-				img.Set(leftMargin+x+i, height-(y+j), c)
+				img.Set(x+i, height-(y+j), c)
 			}
 		}
 	}
@@ -102,29 +103,29 @@ func drawSeries(img draw.Image, graph graph, ms metricsByName, height, width, le
 	}
 }
 
-func drawAxisX(img draw.Image, height, width, leftMargin, graphLeftMargin, bottomMargin int, from, until time.Time) {
+func drawAxisX(img draw.Image, height, width, graphLeftMargin, bottomMargin int, from, until time.Time) {
 	for i := 0; i < height-bottomMargin; i++ {
-		img.Set(leftMargin+graphLeftMargin, i, axisColor)
+		img.Set(graphLeftMargin, i, axisColor)
 	}
 	stepX := 30 * time.Minute
 	for t := from.Truncate(stepX).Add(stepX); t.Before(until); t = t.Add(stepX) {
 		offset := int(float64(t.Sub(from)) / float64(until.Sub(from)) * float64(width-graphLeftMargin))
 		for i := 0; i < height-bottomMargin; i++ {
-			img.Set(leftMargin+graphLeftMargin+offset, i, tickColor)
+			img.Set(graphLeftMargin+offset, i, tickColor)
 		}
 		d := &font.Drawer{
 			Dst:  img,
 			Src:  image.NewUniform(axisColor),
 			Face: inconsolata.Bold8x16,
-			Dot:  fixed.P(leftMargin+graphLeftMargin+offset-17, height-bottomMargin+20),
+			Dot:  fixed.P(graphLeftMargin+offset-17, height-bottomMargin+20),
 		}
 		d.DrawString(fmt.Sprintf("%2d:%02d", t.Hour(), t.Minute()))
 	}
 }
 
-func drawAxisY(img draw.Image, height, width, leftMargin, graphLeftMargin, bottomMargin int, from, until time.Time, maxValue float64) {
+func drawAxisY(img draw.Image, height, width, graphLeftMargin, bottomMargin int, from, until time.Time, maxValue float64) {
 	for i := graphLeftMargin; i < width; i++ {
-		img.Set(leftMargin+i, height-bottomMargin-1, axisColor)
+		img.Set(i, height-bottomMargin-1, axisColor)
 	}
 	tick := math.Pow10(int(math.Floor(math.Log10(maxValue / 5.0))))
 	if maxValue/tick > 12 {
@@ -136,13 +137,13 @@ func drawAxisY(img draw.Image, height, width, leftMargin, graphLeftMargin, botto
 	for y := 0.0; y < maxValue; y += tick {
 		posY := height - bottomMargin - int(y/maxValue*float64(height-bottomMargin))
 		for i := graphLeftMargin; 0.0 < y && i < width; i++ {
-			img.Set(leftMargin+i, posY, tickColor)
+			img.Set(i, posY, tickColor)
 		}
 		d := &font.Drawer{
 			Dst:  img,
 			Src:  image.NewUniform(axisColor),
 			Face: inconsolata.Bold8x16,
-			Dot:  fixed.P(leftMargin+8, posY+4),
+			Dot:  fixed.P(8, posY+4),
 		}
 		if y == 0.0 {
 			d.DrawString("   0")
@@ -168,19 +169,19 @@ func formatAxisY(tick, maxValue float64) (string, float64) {
 	return fmt.Sprintf("%%.%df%s", digits, suffix), scale
 }
 
-func drawBorder(img draw.Image, height, width, leftMargin int) {
+func drawBorder(img draw.Image, height, width int) {
 	for i := 0; i < width; i++ {
-		img.Set(leftMargin+i, 0, borderColor)
-		img.Set(leftMargin+i, height-1, borderColor)
+		img.Set(i, 0, borderColor)
+		img.Set(i, height-1, borderColor)
 	}
 	for i := 0; i < height; i++ {
-		img.Set(leftMargin, i, borderColor)
-		img.Set(leftMargin+width-1, i, borderColor)
+		img.Set(0, i, borderColor)
+		img.Set(width-1, i, borderColor)
 	}
 }
 
-func drawTitle(img draw.Image, width, leftMargin int, title string) {
-	x, y := leftMargin+width/2-len(title)*4, 20
+func drawTitle(img draw.Image, width int, title string) {
+	x, y := width/2-len(title)*4, 20
 	for i := -3; i < len(title)*8+3; i++ {
 		for j := -4; j < 15; j++ {
 			img.Set(x+i, y-j, color.Alpha{0x00})

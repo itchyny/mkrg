@@ -138,11 +138,17 @@ func drawBorder(img *image.RGBA, height, width, leftMargin int) {
 }
 
 func drawTitle(img *image.RGBA, width, leftMargin int, title string) {
+	x, y := leftMargin+width/2-len(title)*4, 20
+	for i := -3; i < len(title)*8+3; i++ {
+		for j := -4; j < 15; j++ {
+			img.Set(x+i, y-j, color.Alpha{0x00})
+		}
+	}
 	d := &font.Drawer{
 		Dst:  img,
 		Src:  image.NewUniform(axisColor),
 		Face: inconsolata.Bold8x16,
-		Dot:  fixed.P(leftMargin+width/2-len(title)*4, 20),
+		Dot:  fixed.P(x, y),
 	}
 	d.DrawString(title)
 }

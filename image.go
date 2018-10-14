@@ -71,8 +71,8 @@ func printImage(img draw.Image, graph graph, ms metricsByName, height, width int
 func drawGraph(img draw.Image, graph graph, ms metricsByName, height, width int, from, until time.Time) {
 	graphLeftMargin, bottomMargin := 48, 30
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
-	drawAxisX(img, height, width, graphLeftMargin, bottomMargin, from, until)
-	drawAxisY(img, height, width, graphLeftMargin, bottomMargin, from, until, maxValue)
+	drawAxisX(img, height-bottomMargin, width, graphLeftMargin, from, until)
+	drawAxisY(img, height-bottomMargin, width, graphLeftMargin, from, until, maxValue)
 	drawSeries(&Image{img, 0, graphLeftMargin}, graph, ms, height-bottomMargin, width-graphLeftMargin, from, until, maxValue)
 }
 
@@ -103,29 +103,29 @@ func drawSeries(img draw.Image, graph graph, ms metricsByName, height, width int
 	}
 }
 
-func drawAxisX(img draw.Image, height, width, graphLeftMargin, bottomMargin int, from, until time.Time) {
-	for i := 0; i < height-bottomMargin; i++ {
+func drawAxisX(img draw.Image, height, width, graphLeftMargin int, from, until time.Time) {
+	for i := 0; i < height; i++ {
 		img.Set(graphLeftMargin, i, axisColor)
 	}
 	stepX := 30 * time.Minute
 	for t := from.Truncate(stepX).Add(stepX); t.Before(until); t = t.Add(stepX) {
 		offset := int(float64(t.Sub(from)) / float64(until.Sub(from)) * float64(width-graphLeftMargin))
-		for i := 0; i < height-bottomMargin; i++ {
+		for i := 0; i < height; i++ {
 			img.Set(graphLeftMargin+offset, i, tickColor)
 		}
 		d := &font.Drawer{
 			Dst:  img,
 			Src:  image.NewUniform(axisColor),
 			Face: inconsolata.Bold8x16,
-			Dot:  fixed.P(graphLeftMargin+offset-17, height-bottomMargin+20),
+			Dot:  fixed.P(graphLeftMargin+offset-17, height+20),
 		}
 		d.DrawString(fmt.Sprintf("%2d:%02d", t.Hour(), t.Minute()))
 	}
 }
 
-func drawAxisY(img draw.Image, height, width, graphLeftMargin, bottomMargin int, from, until time.Time, maxValue float64) {
+func drawAxisY(img draw.Image, height, width, graphLeftMargin int, from, until time.Time, maxValue float64) {
 	for i := graphLeftMargin; i < width; i++ {
-		img.Set(i, height-bottomMargin-1, axisColor)
+		img.Set(i, height-1, axisColor)
 	}
 	tick := math.Pow10(int(math.Floor(math.Log10(maxValue / 5.0))))
 	if maxValue/tick > 12 {
@@ -135,7 +135,7 @@ func drawAxisY(img draw.Image, height, width, graphLeftMargin, bottomMargin int,
 	}
 	format, scale := formatAxisY(tick, maxValue)
 	for y := 0.0; y < maxValue; y += tick {
-		posY := height - bottomMargin - int(y/maxValue*float64(height-bottomMargin))
+		posY := height - int(y/maxValue*float64(height))
 		for i := graphLeftMargin; 0.0 < y && i < width; i++ {
 			img.Set(i, posY, tickColor)
 		}

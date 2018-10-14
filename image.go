@@ -9,6 +9,7 @@ import (
 
 var (
 	borderColor = color.RGBA{0xff, 0xff, 0xff, 0x88}
+	axisColor   = color.RGBA{0xff, 0xff, 0xff, 0xff}
 )
 
 func printImage(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) error {
@@ -18,6 +19,12 @@ func printImage(img *image.RGBA, graph graph, ms metricsByName, height, width, l
 }
 
 func drawGraph(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) {
+	graphLeftMargin, bottomMargin := 60, 30
+	drawSeries(img, graph, ms, height-bottomMargin, width-graphLeftMargin, leftMargin+graphLeftMargin, from, until)
+	drawAxis(img, height, width, leftMargin, graphLeftMargin, bottomMargin, from, until)
+}
+
+func drawSeries(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) {
 	c := color.RGBA{0x63, 0xba, 0xc6, 0xff}
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
 	imgSet := func(x, y int, c color.RGBA) {
@@ -42,6 +49,15 @@ func drawGraph(img *image.RGBA, graph graph, ms metricsByName, height, width, le
 			prevX, prevY = x, y
 		}
 		prevX, prevY = -1, 0
+	}
+}
+
+func drawAxis(img *image.RGBA, height, width, leftMargin, graphLeftMargin, bottomMargin int, from, until time.Time) {
+	for i := graphLeftMargin; i < width; i++ {
+		img.Set(leftMargin+i, height-bottomMargin-1, axisColor)
+	}
+	for i := 0; i < height-bottomMargin; i++ {
+		img.Set(leftMargin+graphLeftMargin, i, axisColor)
 	}
 }
 

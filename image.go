@@ -108,7 +108,7 @@ func drawAxisX(img draw.Image, height, width, graphLeftMargin int, from, until t
 		img.Set(graphLeftMargin, i, axisColor)
 	}
 	stepX := 30 * time.Minute
-	for t := from.Truncate(stepX).Add(stepX); t.Before(until); t = t.Add(stepX) {
+	for t := from.Truncate(stepX).Add(stepX); !until.Before(t); t = t.Add(stepX) {
 		offset := int(float64(t.Sub(from)) / float64(until.Sub(from)) * float64(width-graphLeftMargin))
 		for i := 0; i < height; i++ {
 			img.Set(graphLeftMargin+offset, i, tickColor)
@@ -120,6 +120,11 @@ func drawAxisX(img draw.Image, height, width, graphLeftMargin int, from, until t
 			Dot:  fixed.P(graphLeftMargin+offset-17, height+20),
 		}
 		d.DrawString(fmt.Sprintf("%2d:%02d", t.Hour(), t.Minute()))
+	}
+	for i := 0; i < 40; i++ {
+		for j := 0; j < 20; j++ {
+			img.Set(i+width, height+j+5, color.Alpha{0x00})
+		}
 	}
 }
 

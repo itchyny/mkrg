@@ -47,7 +47,8 @@ func (app *App) Run() error {
 	until := time.Now().Round(time.Minute)
 	from := until.Add(-time.Duration(width*3) * time.Minute)
 	var ui ui
-	if os.Getenv("TERM_PROGRAM") == "iTerm.app" || os.Getenv("MKRG_VIEWER") == "iTerm2" {
+	if os.Getenv("TERM_PROGRAM") == "iTerm.app" && os.Getenv("MKRG_VIEWER") == "" ||
+		os.Getenv("MKRG_VIEWER") == "iTerm2" {
 		ui = newIterm2UI(height, width, maxColumn, from, until)
 	} else if os.Getenv("MKRG_VIEWER") == "Sixel" {
 		ui = newSixel(height, width, maxColumn, from, until)

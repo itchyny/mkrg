@@ -23,9 +23,9 @@ func newIterm2UI(height, width, maxColumn int, from, until time.Time) *iterm2UI 
 func (ui *iterm2UI) output(graph graph, ms metricsByName) error {
 	imgHeight, imgWidth, padding := ui.height*20, ui.width*12, ui.width/5
 	if ui.column == 0 {
-		ui.img = image.NewRGBA(image.Rect(0, 0, (imgWidth+padding)*ui.maxColumn-padding, imgHeight+padding))
+		ui.img = image.NewRGBA(image.Rect(0, 0, (imgWidth+padding)*ui.maxColumn-padding, imgHeight+padding*2))
 	}
-	printImage(&Image{ui.img, (imgWidth + padding) * ui.column}, graph, ms, imgHeight, imgWidth, ui.from, ui.until)
+	printImage(&Image{ui.img, padding, (imgWidth + padding) * ui.column}, graph, ms, imgHeight, imgWidth, ui.from, ui.until)
 	if ui.column == ui.maxColumn-1 {
 		if err := ui.cleanup(); err != nil {
 			return err

@@ -44,12 +44,12 @@ var (
 )
 
 type Image struct {
-	img        draw.Image
-	leftMargin int
+	img                   draw.Image
+	topMargin, leftMargin int
 }
 
 func (img *Image) Set(x, y int, c color.Color) {
-	img.img.Set(x+img.leftMargin, y, c)
+	img.img.Set(x+img.leftMargin, y+img.topMargin, c)
 }
 func (img *Image) ColorModel() color.Model {
 	return img.img.ColorModel()
@@ -58,7 +58,7 @@ func (img *Image) Bounds() image.Rectangle {
 	return img.img.Bounds()
 }
 func (img *Image) At(x, y int) color.Color {
-	return img.img.At(x+img.leftMargin, y)
+	return img.img.At(x+img.leftMargin+img.topMargin, y)
 }
 
 func printImage(img draw.Image, graph graph, ms metricsByName, height, width int, from, until time.Time) error {
@@ -73,7 +73,7 @@ func drawGraph(img draw.Image, graph graph, ms metricsByName, height, width int,
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
 	drawAxisX(img, height, width, graphLeftMargin, bottomMargin, from, until)
 	drawAxisY(img, height, width, graphLeftMargin, bottomMargin, from, until, maxValue)
-	drawSeries(&Image{img, graphLeftMargin}, graph, ms, height-bottomMargin, width-graphLeftMargin, from, until, maxValue)
+	drawSeries(&Image{img, 0, graphLeftMargin}, graph, ms, height-bottomMargin, width-graphLeftMargin, from, until, maxValue)
 }
 
 func drawSeries(img draw.Image, graph graph, ms metricsByName, height, width int, from, until time.Time, maxValue float64) {

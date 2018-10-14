@@ -69,7 +69,7 @@ func printImage(img draw.Image, graph graph, ms metricsByName, height, width int
 }
 
 func drawGraph(img draw.Image, graph graph, ms metricsByName, height, width int, from, until time.Time) {
-	graphLeftMargin, bottomMargin := 48, 30
+	graphLeftMargin, bottomMargin := 48, 26
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
 	drawAxisX(img, height-bottomMargin, width, graphLeftMargin, from, until)
 	drawAxisY(img, height-bottomMargin, width, graphLeftMargin, from, until, maxValue)
@@ -121,7 +121,7 @@ func drawAxisX(img draw.Image, height, width, graphLeftMargin int, from, until t
 			Dst:  img,
 			Src:  image.NewUniform(axisColor),
 			Face: inconsolata.Bold8x16,
-			Dot:  fixed.P(graphLeftMargin+offset+diffX, height+20),
+			Dot:  fixed.P(graphLeftMargin+offset+diffX, height+17),
 		}
 		d.DrawString(fmt.Sprintf("%2d:%02d", t.Hour(), t.Minute()))
 	}

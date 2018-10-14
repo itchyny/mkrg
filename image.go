@@ -113,11 +113,15 @@ func drawAxisX(img draw.Image, height, width, graphLeftMargin int, from, until t
 		for i := 0; i < height; i++ {
 			img.Set(graphLeftMargin+offset, i, tickColor)
 		}
+		diffX := -19
+		if t.Hour() < 12 {
+			diffX = -23
+		}
 		d := &font.Drawer{
 			Dst:  img,
 			Src:  image.NewUniform(axisColor),
 			Face: inconsolata.Bold8x16,
-			Dot:  fixed.P(graphLeftMargin+offset-17, height+20),
+			Dot:  fixed.P(graphLeftMargin+offset+diffX, height+20),
 		}
 		d.DrawString(fmt.Sprintf("%2d:%02d", t.Hour(), t.Minute()))
 	}

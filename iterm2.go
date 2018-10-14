@@ -16,7 +16,7 @@ type iterm2 struct {
 	img               *image.RGBA
 }
 
-func newIterm2(height, width int, maxColumn int, from, until time.Time) *iterm2 {
+func newIterm2(height, width, maxColumn int, from, until time.Time) *iterm2 {
 	return &iterm2{height, width, 0, maxColumn, from, until, nil}
 }
 

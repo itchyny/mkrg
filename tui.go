@@ -6,9 +6,10 @@ import (
 )
 
 type tui struct {
-	height, width, column, maxColumn int
-	until                            time.Time
-	lines                            []string
+	height, width     int
+	column, maxColumn int
+	until             time.Time
+	lines             []string
 }
 
 func newTui(height, width, maxColumn int, until time.Time) *tui {

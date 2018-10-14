@@ -1,15 +1,21 @@
 package mkrg
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"math"
 	"time"
+
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/inconsolata"
+	"golang.org/x/image/math/fixed"
 )
 
 var (
 	borderColor = color.RGBA{0xff, 0xff, 0xff, 0x88}
 	axisColor   = color.RGBA{0xff, 0xff, 0xff, 0xff}
+	tickColor   = color.RGBA{0xff, 0xff, 0xff, 0xaa}
 )
 
 func printImage(img *image.RGBA, graph graph, ms metricsByName, height, width, leftMargin int, from, until time.Time) error {
@@ -58,6 +64,20 @@ func drawAxis(img *image.RGBA, height, width, leftMargin, graphLeftMargin, botto
 	}
 	for i := 0; i < height-bottomMargin; i++ {
 		img.Set(leftMargin+graphLeftMargin, i, axisColor)
+	}
+	stepX := 30 * time.Minute
+	for t := from.Truncate(stepX).Add(stepX); t.Before(until); t = t.Add(stepX) {
+		offset := int(float64(t.Sub(from)) / float64(until.Sub(from)) * float64(width-graphLeftMargin))
+		for i := 0; i < height-bottomMargin; i++ {
+			img.Set(leftMargin+graphLeftMargin+offset, i, tickColor)
+		}
+		d := &font.Drawer{
+			Dst:  img,
+			Src:  image.NewUniform(axisColor),
+			Face: inconsolata.Bold8x16,
+			Dot:  fixed.P(leftMargin+graphLeftMargin+offset-17, height-bottomMargin+20),
+		}
+		d.DrawString(fmt.Sprintf("%2d:%02d", t.Hour(), t.Minute()))
 	}
 }
 

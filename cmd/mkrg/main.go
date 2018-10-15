@@ -33,8 +33,17 @@ func run(args []string) error {
 	app.Usage = description
 	app.Version = version
 	app.Author = author
-	app.Flags = []cli.Flag{}
-	app.Action = func(c *cli.Context) error {
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "help, h",
+			Usage: "show help",
+		},
+	}
+	app.HideHelp = true
+	app.Action = func(ctx *cli.Context) error {
+		if ctx.GlobalBool("help") {
+			return cli.ShowAppHelp(ctx)
+		}
 		client, hostID, err := setupClientHostID()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s: %s\n", cmdName, err)

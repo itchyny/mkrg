@@ -42,6 +42,9 @@ func setupClientHostID() (*mackerel.Client, string, error) {
 	if key := os.Getenv("MACKEREL_APIKEY"); key != "" {
 		apiKey = key
 	}
+	if apiKey == "" {
+		return nil, "", errors.New("MACKEREL_APIKEY not set")
+	}
 	apiBase := conf.Apibase
 	if apiBase == "" {
 		apiBase = config.DefaultConfig.Apibase

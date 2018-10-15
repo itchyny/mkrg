@@ -34,6 +34,10 @@ func run(args []string) error {
 	app.Version = version
 	app.Author = author
 	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "host",
+			Usage: "host id",
+		},
 		cli.BoolFlag{
 			Name:  "help, h",
 			Usage: "show help",
@@ -44,7 +48,7 @@ func run(args []string) error {
 		if ctx.GlobalBool("help") {
 			return cli.ShowAppHelp(ctx)
 		}
-		client, hostID, err := setupClientHostID()
+		client, hostID, err := setupClientHostID(ctx)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s: %s\n", cmdName, err)
 			return err
@@ -58,7 +62,7 @@ func run(args []string) error {
 	return app.Run(args)
 }
 
-func setupClientHostID() (*mackerel.Client, string, error) {
+func setupClientHostID(ctx *cli.Context) (*mackerel.Client, string, error) {
 	confFile := config.DefaultConfig.Conffile
 	conf, err := config.LoadConfig(confFile)
 	if err != nil {
@@ -79,9 +83,12 @@ func setupClientHostID() (*mackerel.Client, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	hostID, err := loadHostID(conf.Root)
-	if err != nil {
-		return nil, "", err
+	hostID := ctx.GlobalString("host")
+	if hostID == "" {
+		hostID, err = loadHostID(conf.Root)
+		if err != nil {
+			return nil, "", errors.New("specify host id")
+		}
 	}
 	return client, hostID, nil
 }

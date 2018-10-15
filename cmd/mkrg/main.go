@@ -9,27 +9,44 @@ import (
 	"github.com/itchyny/mkrg"
 	"github.com/mackerelio/mackerel-agent/config"
 	"github.com/mackerelio/mackerel-client-go"
+	"github.com/pkg/errors"
+	"github.com/urfave/cli"
 )
 
-const cmdName = "mkrg"
+const (
+	cmdName     = "mkrg"
+	description = "Mackerel graph viewer in terminal"
+	version     = "0.0.0"
+	author      = "itchyny"
+)
 
 func main() {
-	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "%s: %s\n", cmdName, err)
+	if run(os.Args) != nil {
 		os.Exit(1)
 	}
 }
 
-func run() error {
-	client, hostID, err := setupClientHostID()
-	if err != nil {
+func run(args []string) error {
+	app := cli.NewApp()
+	app.Name = cmdName
+	app.HelpName = cmdName
+	app.Usage = description
+	app.Version = version
+	app.Author = author
+	app.Flags = []cli.Flag{}
+	app.Action = func(c *cli.Context) error {
+		client, hostID, err := setupClientHostID()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s: %s\n", cmdName, err)
+			return err
+		}
+		err = mkrg.NewApp(client, hostID).Run()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s: %s\n", cmdName, err)
+		}
 		return err
 	}
-	app := mkrg.NewApp(client, hostID)
-	if err := app.Run(); err != nil {
-		return err
-	}
-	return nil
+	return app.Run(args)
 }
 
 func setupClientHostID() (*mackerel.Client, string, error) {

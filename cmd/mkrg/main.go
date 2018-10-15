@@ -63,17 +63,19 @@ func run(args []string) error {
 }
 
 func setupClientHostID(ctx *cli.Context) (*mackerel.Client, string, error) {
-	confFile := config.DefaultConfig.Conffile
-	conf, err := config.LoadConfig(confFile)
-	if err != nil {
-		return nil, "", err
-	}
-	apiKey := conf.Apikey
-	if key := os.Getenv("MACKEREL_APIKEY"); key != "" {
-		apiKey = key
-	}
+	var conf *config.Config
+	var err error
+	apiKey := os.Getenv("MACKEREL_APIKEY")
 	if apiKey == "" {
-		return nil, "", errors.New("MACKEREL_APIKEY not set")
+		confFile := config.DefaultConfig.Conffile
+		conf, err = config.LoadConfig(confFile)
+		if err != nil {
+			return nil, "", errors.New("MACKEREL_APIKEY not set")
+		}
+		apiKey = conf.Apikey
+		if apiKey == "" {
+			return nil, "", errors.New("MACKEREL_APIKEY not set")
+		}
 	}
 	apiBase := conf.Apibase
 	if apiBase == "" {

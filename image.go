@@ -114,7 +114,7 @@ func drawAxisX(img draw.Image, height, width, graphLeftMargin int, from, until t
 			img.Set(graphLeftMargin+offset, i, tickColor)
 		}
 		diffX := -19
-		if t.Hour() < 12 {
+		if t.Hour() < 10 {
 			diffX = -23
 		}
 		d := &font.Drawer{

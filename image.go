@@ -86,19 +86,19 @@ func drawSeries(img draw.Image, graph graph, ms metricsByName, height, width int
 		}
 	}
 	for i, metricName := range ms.MetricNames() {
-		prevPrevTime, prevTime, prevX, prevY := int64(0), int64(0), -1, 0
+		prevPrevTime, prevTime, prevX, prevY := int64(0), int64(0), -1.0, 0.0
 		metrics, seriesColor := ms[metricName], seriesColors[i%len(seriesColors)]
 		for _, m := range metrics {
-			x := int(m.Time-from.Unix()) * width / int(until.Sub(from)/time.Second)
-			y := int(m.Value.(float64) / maxValue * float64(height))
+			x := float64(m.Time-from.Unix()) * float64(width) / float64(until.Sub(from)/time.Second)
+			y := m.Value.(float64) / maxValue * float64(height)
 			if 0 <= x {
-				start, step := 1, int(math.Max(math.Sqrt(float64((x-prevX)*(x-prevX)+(y-prevY)*(y-prevY)))/2.0, 5.0))
+				start, step := 0.0, math.Max(math.Sqrt((x-prevX)*(x-prevX)+(y-prevY)*(y-prevY))/2.0, 5.0)
 				if prevX < 0 || prevTime-3*60 < prevPrevTime && prevTime < m.Time-3*60 {
 					start = step
 				}
 				prevPrevTime, prevTime = prevTime, m.Time
 				for i := start; i <= step; i++ {
-					imgSet(int(float64(prevX*(step-i)+x*i)/float64(step)), int((float64(prevY*(step-i)+y*i))/float64(step)), seriesColor)
+					imgSet(int((prevX*(step-i)+x*i)/step), int((prevY*(step-i)+y*i)/step), seriesColor)
 				}
 			}
 			prevX, prevY = x, y

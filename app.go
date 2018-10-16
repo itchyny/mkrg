@@ -55,6 +55,7 @@ func (app *App) Run() error {
 		from = until.Add(-time.Duration(width*2) * time.Minute)
 		ui = newTui(height, width, maxColumn, until)
 	}
+	f := newFetcher(app.client)
 	for _, graph := range systemGraphs {
 		var metricNames []string
 		for _, metric := range graph.metrics {
@@ -63,10 +64,20 @@ func (app *App) Run() error {
 		if len(metricNames) == 0 {
 			continue
 		}
-		ms, err := app.fetchMetrics(metricNames, from, until)
-		if err != nil {
-			return err
+		wg, mu := sync.WaitGroup{}, new(sync.Mutex)
+		ms := make(metricsByName, len(metricNames))
+		for _, metricName := range metricNames {
+			wg.Add(1)
+			ch := f.fetchMetric(app.hostID, metricName, from, until)
+			go func() {
+				res := <-ch
+				mu.Lock()
+				ms.Add(res.metricName, res.metrics)
+				mu.Unlock()
+				wg.Done()
+			}()
 		}
+		wg.Wait()
 		ms.AddMemorySwapUsed()
 		ms.Stack(graph)
 		if err := ui.output(graph, ms); err != nil {
@@ -74,33 +85,6 @@ func (app *App) Run() error {
 		}
 	}
 	return ui.cleanup()
-}
-
-func (app *App) fetchMetrics(metricNames []string, from, until time.Time) (metricsByName, error) {
-	var err error
-	ms := make(metricsByName, len(metricNames))
-	wg, mu, sem := sync.WaitGroup{}, new(sync.Mutex), make(chan struct{}, 5)
-	for _, metricName := range metricNames {
-		metricName := metricName
-		sem <- struct{}{}
-		wg.Add(1)
-		go func() {
-			metrics, e := app.client.FetchHostMetricValues(app.hostID, metricName, from.Unix(), until.Unix())
-			mu.Lock()
-			defer func() {
-				<-sem
-				mu.Unlock()
-				wg.Done()
-			}()
-			if e != nil {
-				e = err
-				return
-			}
-			ms.Add(metricName, metrics)
-		}()
-	}
-	wg.Wait()
-	return ms, err
 }
 
 func (app *App) getMetricNamesMap() (map[string]bool, error) {

@@ -57,7 +57,9 @@ func (app *App) Run() error {
 		from = until.Add(-time.Duration(width*2) * time.Minute)
 		ui = newTui(height, width, maxColumn, until)
 	}
+	wg, mu := sync.WaitGroup{}, new(sync.Mutex)
 	for _, graph := range systemGraphs {
+		graph := graph
 		var metricNames []string
 		for _, metric := range graph.metrics {
 			metricNames = append(metricNames, filterMetricNames(metricNamesMap, metric.name)...)
@@ -65,11 +67,18 @@ func (app *App) Run() error {
 		if len(metricNames) == 0 {
 			continue
 		}
-		ms := app.fetchMetrics(graph, metricNames, from, until)
-		if err := ui.output(graph, ms); err != nil {
-			return err
-		}
+		wg.Add(1)
+		go func() {
+			ms := app.fetchMetrics(graph, metricNames, from, until)
+			mu.Lock()
+			defer mu.Unlock()
+			ui.output(graph, ms)
+			wg.Done()
+		}()
 	}
+	wg.Wait()
+	mu.Lock()
+	defer mu.Unlock()
 	return ui.cleanup()
 }
 

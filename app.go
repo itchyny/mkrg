@@ -4,6 +4,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mackerelio/mackerel-client-go"
@@ -78,15 +79,30 @@ func (app *App) Run() error {
 }
 
 func (app *App) fetchMetrics(metricNames []string, from, until time.Time) (metricsByName, error) {
+	var err error
 	ms := make(metricsByName, len(metricNames))
+	wg, mu, sem := sync.WaitGroup{}, new(sync.Mutex), make(chan struct{}, 5)
 	for _, metricName := range metricNames {
-		metrics, err := app.client.FetchHostMetricValues(app.hostID, metricName, from.Unix(), until.Unix())
-		if err != nil {
-			return nil, err
-		}
-		ms.Add(metricName, metrics)
+		metricName := metricName
+		sem <- struct{}{}
+		wg.Add(1)
+		go func() {
+			metrics, e := app.client.FetchHostMetricValues(app.hostID, metricName, from.Unix(), until.Unix())
+			mu.Lock()
+			defer func() {
+				<-sem
+				mu.Unlock()
+				wg.Done()
+			}()
+			if e != nil {
+				e = err
+				return
+			}
+			ms.Add(metricName, metrics)
+		}()
 	}
-	return ms, nil
+	wg.Wait()
+	return ms, err
 }
 
 func (app *App) getMetricNamesMap() (map[string]bool, error) {

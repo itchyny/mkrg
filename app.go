@@ -69,20 +69,28 @@ func (app *App) Run() error {
 		}
 		wg.Add(1)
 		go func() {
-			ms := app.fetchMetrics(graph, metricNames, from, until)
+			ms, e := app.fetchMetrics(graph, metricNames, from, until)
 			mu.Lock()
 			defer mu.Unlock()
+			defer wg.Done()
+			if e != nil {
+				err = e
+				return
+			}
 			ui.output(graph, ms)
-			wg.Done()
 		}()
 	}
 	wg.Wait()
 	mu.Lock()
 	defer mu.Unlock()
+	if err != nil {
+		return err
+	}
 	return ui.cleanup()
 }
 
-func (app *App) fetchMetrics(graph graph, metricNames []string, from, until time.Time) metricsByName {
+func (app *App) fetchMetrics(graph graph, metricNames []string, from, until time.Time) (metricsByName, error) {
+	var err error
 	wg, mu := sync.WaitGroup{}, new(sync.Mutex)
 	ms := make(metricsByName, len(metricNames))
 	for _, metricName := range metricNames {
@@ -91,15 +99,22 @@ func (app *App) fetchMetrics(graph graph, metricNames []string, from, until time
 		go func() {
 			res := <-ch
 			mu.Lock()
+			defer mu.Unlock()
+			defer wg.Done()
+			if res.err != nil {
+				err = res.err
+				return
+			}
 			ms.Add(res.metricName, res.metrics)
-			mu.Unlock()
-			wg.Done()
 		}()
 	}
 	wg.Wait()
+	if err != nil {
+		return nil, err
+	}
 	ms.AddMemorySwapUsed()
 	ms.Stack(graph)
-	return ms
+	return ms, nil
 }
 
 func (app *App) getMetricNamesMap() (map[string]bool, error) {

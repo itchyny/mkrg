@@ -16,63 +16,63 @@ type metric struct {
 }
 
 var systemGraphs = []graph{
-	graph{
+	{
 		name: "loadavg",
 		metrics: []metric{
-			metric{"loadavg1", false},
-			metric{"loadavg5", false},
-			metric{"loadavg15", false},
+			{"loadavg1", false},
+			{"loadavg5", false},
+			{"loadavg15", false},
 		},
 	},
-	graph{
+	{
 		name: "cpu",
 		metrics: []metric{
-			metric{"cpu.user.percentage", true},
-			metric{"cpu.nice.percentage", true},
-			metric{"cpu.system.percentage", true},
-			metric{"cpu.irq.percentage", true},
-			metric{"cpu.softirq.percentage", true},
-			metric{"cpu.iowait.percentage", true},
-			metric{"cpu.steal.percentage", true},
-			metric{"cpu.guest.percentage", true},
-			metric{"cpu.idle.percentage", true},
+			{"cpu.user.percentage", true},
+			{"cpu.nice.percentage", true},
+			{"cpu.system.percentage", true},
+			{"cpu.irq.percentage", true},
+			{"cpu.softirq.percentage", true},
+			{"cpu.iowait.percentage", true},
+			{"cpu.steal.percentage", true},
+			{"cpu.guest.percentage", true},
+			{"cpu.idle.percentage", true},
 		},
 	},
-	graph{
+	{
 		name: "memory",
 		metrics: []metric{
-			metric{"memory.used", true},
-			metric{"memory.mem_available", true},
-			metric{"memory.buffers", true},
-			metric{"memory.cached", true},
-			metric{"memory.total", false},
-			metric{"memory.free", true},
-			metric{"memory.pagefile_total", false},
-			metric{"memory.swap_used", false},
-			metric{"memory.swap_cached", false},
-			metric{"memory.pagefile_free", false},
-			metric{"memory.swap_total", false},
+			{"memory.used", true},
+			{"memory.mem_available", true},
+			{"memory.buffers", true},
+			{"memory.cached", true},
+			{"memory.total", false},
+			{"memory.free", true},
+			{"memory.pagefile_total", false},
+			{"memory.swap_used", false},
+			{"memory.swap_cached", false},
+			{"memory.pagefile_free", false},
+			{"memory.swap_total", false},
 		},
 	},
-	graph{
+	{
 		name: "disk",
 		metrics: []metric{
-			metric{"disk.#.reads.delta", false},
-			metric{"disk.#.writes.delta", false},
+			{"disk.#.reads.delta", false},
+			{"disk.#.writes.delta", false},
 		},
 	},
-	graph{
+	{
 		name: "interface",
 		metrics: []metric{
-			metric{"interface.#.rxBytes.delta", false},
-			metric{"interface.#.txBytes.delta", false},
+			{"interface.#.rxBytes.delta", false},
+			{"interface.#.txBytes.delta", false},
 		},
 	},
-	graph{
+	{
 		name: "filesystem",
 		metrics: []metric{
-			metric{"filesystem.#.used", false},
-			metric{"filesystem.#.size", false},
+			{"filesystem.#.used", false},
+			{"filesystem.#.size", false},
 		},
 	},
 }

@@ -85,7 +85,7 @@ func drawSeries(img draw.Image, graph graph, ms metricsByName, height, width int
 			}
 		}
 	}
-	for i, metricName := range ms.MetricNames() {
+	for i, metricName := range ms.ListMetricNames(graph) {
 		prevPrevTime, prevTime, prevX, prevY := int64(0), int64(0), -1.0, 0.0
 		metrics, seriesColor := ms[metricName], seriesColors[i%len(seriesColors)]
 		for _, m := range metrics {

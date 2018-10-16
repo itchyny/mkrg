@@ -2,8 +2,6 @@ package mkrg
 
 import (
 	"os"
-	"regexp"
-	"strings"
 	"sync"
 	"time"
 
@@ -126,9 +124,7 @@ func filterMetricNames(metricNamesMap map[string]bool, name string) []string {
 			return []string{"memory.swap_free"}
 		}
 	}
-	namePattern := regexp.MustCompile(
-		"^" + strings.Replace(name, "#", `[-a-zA-Z0-9_]+`, -1) + "$",
-	)
+	namePattern := metricNamePattern(name)
 	var metricNames []string
 	for metricName := range metricNamesMap {
 		if namePattern.MatchString(metricName) {

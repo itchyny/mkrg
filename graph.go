@@ -1,5 +1,10 @@
 package mkrg
 
+import (
+	"regexp"
+	"strings"
+)
+
 type graph struct {
 	name    string
 	metrics []metric
@@ -70,4 +75,10 @@ var systemGraphs = []graph{
 			metric{"filesystem.#.size", false},
 		},
 	},
+}
+
+func metricNamePattern(name string) *regexp.Regexp {
+	return regexp.MustCompile(
+		"^" + strings.Replace(name, "#", `([-a-zA-Z0-9_]+)`, -1) + "$",
+	)
 }

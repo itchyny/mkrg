@@ -2,6 +2,7 @@ package mkrg
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/mackerelio/mackerel-client-go"
 )
@@ -45,12 +46,53 @@ func (ms metricsByName) Stack(graph graph) {
 	}
 }
 
-func (ms metricsByName) MetricNames() []string {
+func (ms metricsByName) ListMetricNames(graph graph) []string {
 	metricNames := make([]string, 0, len(ms))
 	for name := range ms {
 		metricNames = append(metricNames, name)
 	}
-	sort.Strings(metricNames)
+	var groupNames []string
+	groupNameByName := make(map[string]string, len(ms))
+	metricPriorityByName := make(map[string]int, len(ms))
+	for i, metric := range graph.metrics {
+		if strings.ContainsRune(metric.name, '#') {
+			namePattern := metricNamePattern(metric.name)
+			for _, name := range metricNames {
+				match := namePattern.FindStringSubmatch(name)
+				if len(match) > 1 {
+					newGroupName, found := match[1], false
+					groupNameByName[name] = newGroupName
+					metricPriorityByName[name] = i
+					for _, groupName := range groupNames {
+						if groupName == newGroupName {
+							found = true
+							break
+						}
+					}
+					if !found {
+						groupNames = append(groupNames, newGroupName)
+					}
+				}
+			}
+		} else if _, ok := ms[metric.name]; ok {
+			metricPriorityByName[metric.name] = i
+		}
+	}
+	sort.Strings(groupNames)
+	priorityByGroupName := make(map[string]int, len(groupNames))
+	for i, groupName := range groupNames {
+		priorityByGroupName[groupName] = i
+	}
+	priorityByName := make(map[string]int, len(ms))
+	for _, metricName := range metricNames {
+		priorityByName[metricName] = metricPriorityByName[metricName]
+		if groupName, ok := groupNameByName[metricName]; ok {
+			priorityByName[metricName] += priorityByGroupName[groupName] * 100
+		}
+	}
+	sort.Slice(metricNames, func(i, j int) bool {
+		return priorityByName[metricNames[i]] < priorityByName[metricNames[j]]
+	})
 	return metricNames
 }
 

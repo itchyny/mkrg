@@ -7,6 +7,7 @@ import (
 
 	"github.com/mackerelio/mackerel-client-go"
 	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/sync/errgroup"
 )
 
 // App ...
@@ -57,7 +58,7 @@ func (app *App) Run() error {
 		from = until.Add(-time.Duration(width*2) * time.Minute)
 		ui = newTui(height, width, maxColumn, until)
 	}
-	wg, mu := sync.WaitGroup{}, new(sync.Mutex)
+	eg, mu := errgroup.Group{}, new(sync.Mutex)
 	for _, graph := range systemGraphs {
 		graph := graph
 		var metricNames []string
@@ -67,49 +68,41 @@ func (app *App) Run() error {
 		if len(metricNames) == 0 {
 			continue
 		}
-		wg.Add(1)
-		go func() {
-			ms, e := app.fetchMetrics(graph, metricNames, from, until)
+		eg.Go(func() error {
+			ms, err := app.fetchMetrics(graph, metricNames, from, until)
+			if err != nil {
+				return err
+			}
 			mu.Lock()
 			defer mu.Unlock()
-			defer wg.Done()
-			if e != nil {
-				err = e
-				return
-			}
-			ui.output(graph, ms)
-		}()
+			return ui.output(graph, ms)
+		})
 	}
-	wg.Wait()
-	mu.Lock()
-	defer mu.Unlock()
-	if err != nil {
+	if err := eg.Wait(); err != nil {
 		return err
 	}
+	mu.Lock()
+	defer mu.Unlock()
 	return ui.cleanup()
 }
 
 func (app *App) fetchMetrics(graph graph, metricNames []string, from, until time.Time) (metricsByName, error) {
-	var err error
-	wg, mu := sync.WaitGroup{}, new(sync.Mutex)
+	eg, mu := errgroup.Group{}, new(sync.Mutex)
 	ms := make(metricsByName, len(metricNames))
 	for _, metricName := range metricNames {
-		wg.Add(1)
-		ch := app.fetcher.fetchMetric(app.hostID, metricName, from, until)
-		go func() {
-			res := <-ch
+		metricName := metricName
+		eg.Go(func() error {
+			res := <-app.fetcher.fetchMetric(app.hostID, metricName, from, until)
+			if res.err != nil {
+				return res.err
+			}
 			mu.Lock()
 			defer mu.Unlock()
-			defer wg.Done()
-			if res.err != nil {
-				err = res.err
-				return
-			}
 			ms.Add(res.metricName, res.metrics)
-		}()
+			return nil
+		})
 	}
-	wg.Wait()
-	if err != nil {
+	if err := eg.Wait(); err != nil {
 		return nil, err
 	}
 	ms.AddMemorySwapUsed()

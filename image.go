@@ -137,7 +137,7 @@ func drawAxisX(img draw.Image, height, width, graphLeftMargin int, from, until t
 
 func drawAxisY(img draw.Image, height, width, graphLeftMargin int, from, until time.Time, maxValue float64) {
 	for i := graphLeftMargin; i < width; i++ {
-		img.Set(i, height-1, axisColor)
+		img.Set(i, height, axisColor)
 	}
 	tick := math.Pow10(int(math.Floor(math.Log10(maxValue / 5.0))))
 	if maxValue/tick > 12 {
@@ -148,14 +148,14 @@ func drawAxisY(img draw.Image, height, width, graphLeftMargin int, from, until t
 	format, scale := formatAxisY(tick, maxValue)
 	for y := 0.0; y < maxValue; y += tick {
 		posY := height - int(y/maxValue*float64(height))
-		for i := graphLeftMargin; 0.0 < y && i < width; i++ {
+		for i := graphLeftMargin + 1; 0.0 < y && i < width; i++ {
 			img.Set(i, posY, tickColor)
 		}
 		d := &font.Drawer{
 			Dst:  img,
 			Src:  image.NewUniform(axisColor),
 			Face: inconsolata.Bold8x16,
-			Dot:  fixed.P(8, posY+4),
+			Dot:  fixed.P(8, posY+5),
 		}
 		if y == 0.0 {
 			d.DrawString("   0")

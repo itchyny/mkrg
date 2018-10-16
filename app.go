@@ -59,13 +59,18 @@ func (app *App) Run() error {
 		ui = newTui(height, width, maxColumn, until)
 	}
 	eg, mu := errgroup.Group{}, new(sync.Mutex)
-	for _, graph := range systemGraphs {
-		graph := graph
+	orderChs := make([]chan struct{}, len(systemGraphs))
+	for i := range orderChs {
+		orderChs[i] = make(chan struct{})
+	}
+	for i, graph := range systemGraphs {
+		i, graph := i, graph
 		var metricNames []string
 		for _, metric := range graph.metrics {
 			metricNames = append(metricNames, filterMetricNames(metricNamesMap, metric.name)...)
 		}
 		if len(metricNames) == 0 {
+			close(orderChs[i])
 			continue
 		}
 		eg.Go(func() error {
@@ -73,8 +78,14 @@ func (app *App) Run() error {
 			if err != nil {
 				return err
 			}
+			if i > 0 {
+				<-orderChs[i-1]
+			}
 			mu.Lock()
-			defer mu.Unlock()
+			defer func() {
+				mu.Unlock()
+				close(orderChs[i])
+			}()
 			return ui.output(graph, ms)
 		})
 	}

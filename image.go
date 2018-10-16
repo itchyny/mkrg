@@ -92,13 +92,13 @@ func drawSeries(img draw.Image, graph graph, ms metricsByName, height, width int
 			x := float64(m.Time-from.Unix()) * float64(width) / float64(until.Sub(from)/time.Second)
 			y := m.Value.(float64) / maxValue * float64(height)
 			if 0 <= x {
-				start, step := 0.0, math.Max(math.Sqrt((x-prevX)*(x-prevX)+(y-prevY)*(y-prevY))/2.0, 5.0)
+				start, step := 0.0, math.Min(2.0/math.Sqrt((x-prevX)*(x-prevX)+(y-prevY)*(y-prevY)), 0.2)
 				if prevX < 0 || prevTime-3*60 < prevPrevTime && prevTime < m.Time-3*60 {
-					start = step
+					start = 1.0
 				}
 				prevPrevTime, prevTime = prevTime, m.Time
-				for i := start; i <= step; i++ {
-					imgSet(int((prevX*(step-i)+x*i)/step), int((prevY*(step-i)+y*i)/step), seriesColor)
+				for p := start; p <= 1.0; p += step {
+					imgSet(int(prevX*(1.0-p)+x*p), int(prevY*(1.0-p)+y*p), seriesColor)
 				}
 			}
 			prevX, prevY = x, y

@@ -11,23 +11,13 @@ type fetcher struct {
 	sem    chan struct{}
 }
 
-type metricAPIResult struct {
-	metricName string
-	metrics    []mackerel.MetricValue
-	err        error
-}
-
 func newFetcher(client *mackerel.Client) *fetcher {
 	return &fetcher{client, make(chan struct{}, 5)}
 }
 
-func (f *fetcher) fetchMetric(hostID, metricName string, from, until time.Time) <-chan metricAPIResult {
-	ch := make(chan metricAPIResult)
+func (f *fetcher) fetchMetric(hostID, metricName string, from, until time.Time) ([]mackerel.MetricValue, error) {
 	f.sem <- struct{}{}
-	go func() {
-		metrics, err := f.client.FetchHostMetricValues(hostID, metricName, from.Unix(), until.Unix())
-		<-f.sem
-		ch <- metricAPIResult{metricName, metrics, err}
-	}()
-	return ch
+	metrics, err := f.client.FetchHostMetricValues(hostID, metricName, from.Unix(), until.Unix())
+	<-f.sem
+	return metrics, err
 }

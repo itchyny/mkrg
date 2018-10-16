@@ -92,13 +92,13 @@ func (app *App) fetchMetrics(graph graph, metricNames []string, from, until time
 	for _, metricName := range metricNames {
 		metricName := metricName
 		eg.Go(func() error {
-			res := <-app.fetcher.fetchMetric(app.hostID, metricName, from, until)
-			if res.err != nil {
-				return res.err
+			metrics, err := app.fetcher.fetchMetric(app.hostID, metricName, from, until)
+			if err != nil {
+				return err
 			}
 			mu.Lock()
 			defer mu.Unlock()
-			ms.Add(res.metricName, res.metrics)
+			ms.Add(metricName, metrics)
 			return nil
 		})
 	}

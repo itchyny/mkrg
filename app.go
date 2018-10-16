@@ -11,15 +11,17 @@ import (
 
 // App ...
 type App struct {
-	client *mackerel.Client
-	hostID string
+	client  *mackerel.Client
+	hostID  string
+	fetcher *fetcher
 }
 
 // NewApp creates a new app.
 func NewApp(client *mackerel.Client, hostID string) *App {
 	return &App{
-		client: client,
-		hostID: hostID,
+		client:  client,
+		hostID:  hostID,
+		fetcher: newFetcher(client),
 	}
 }
 
@@ -55,7 +57,6 @@ func (app *App) Run() error {
 		from = until.Add(-time.Duration(width*2) * time.Minute)
 		ui = newTui(height, width, maxColumn, until)
 	}
-	f := newFetcher(app.client)
 	for _, graph := range systemGraphs {
 		var metricNames []string
 		for _, metric := range graph.metrics {
@@ -64,27 +65,32 @@ func (app *App) Run() error {
 		if len(metricNames) == 0 {
 			continue
 		}
-		wg, mu := sync.WaitGroup{}, new(sync.Mutex)
-		ms := make(metricsByName, len(metricNames))
-		for _, metricName := range metricNames {
-			wg.Add(1)
-			ch := f.fetchMetric(app.hostID, metricName, from, until)
-			go func() {
-				res := <-ch
-				mu.Lock()
-				ms.Add(res.metricName, res.metrics)
-				mu.Unlock()
-				wg.Done()
-			}()
-		}
-		wg.Wait()
-		ms.AddMemorySwapUsed()
-		ms.Stack(graph)
+		ms := app.fetchMetrics(graph, metricNames, from, until)
 		if err := ui.output(graph, ms); err != nil {
 			return err
 		}
 	}
 	return ui.cleanup()
+}
+
+func (app *App) fetchMetrics(graph graph, metricNames []string, from, until time.Time) metricsByName {
+	wg, mu := sync.WaitGroup{}, new(sync.Mutex)
+	ms := make(metricsByName, len(metricNames))
+	for _, metricName := range metricNames {
+		wg.Add(1)
+		ch := app.fetcher.fetchMetric(app.hostID, metricName, from, until)
+		go func() {
+			res := <-ch
+			mu.Lock()
+			ms.Add(res.metricName, res.metrics)
+			mu.Unlock()
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+	ms.AddMemorySwapUsed()
+	ms.Stack(graph)
+	return ms
 }
 
 func (app *App) getMetricNamesMap() (map[string]bool, error) {

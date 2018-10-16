@@ -64,13 +64,9 @@ func (app *App) Run() error {
 		if len(metricNames) == 0 {
 			continue
 		}
-		ms := make(metricsByName, len(metricNames))
-		for _, metricName := range metricNames {
-			metrics, err := app.client.FetchHostMetricValues(app.hostID, metricName, from.Unix(), until.Unix())
-			if err != nil {
-				return err
-			}
-			ms.Add(metricName, metrics)
+		ms, err := app.fetchMetrics(metricNames, from, until)
+		if err != nil {
+			return err
 		}
 		ms.AddMemorySwapUsed()
 		ms.Stack(graph)
@@ -79,6 +75,18 @@ func (app *App) Run() error {
 		}
 	}
 	return ui.cleanup()
+}
+
+func (app *App) fetchMetrics(metricNames []string, from, until time.Time) (metricsByName, error) {
+	ms := make(metricsByName, len(metricNames))
+	for _, metricName := range metricNames {
+		metrics, err := app.client.FetchHostMetricValues(app.hostID, metricName, from.Unix(), until.Unix())
+		if err != nil {
+			return nil, err
+		}
+		ms.Add(metricName, metrics)
+	}
+	return ms, nil
 }
 
 func (app *App) getMetricNamesMap() (map[string]bool, error) {

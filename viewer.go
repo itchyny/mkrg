@@ -1,6 +1,7 @@
 package mkrg
 
 import (
+	"fmt"
 	"math"
 	"strings"
 	"time"
@@ -16,16 +17,16 @@ func newViewer(graph graph, height, width int) *viewer {
 }
 
 func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
-	h, w := (v.height-2)*4, (v.width-1)*2
+	h, w := (v.height-3)*4, (v.width-1)*2
 	dots := make([][]int, h)
 	for i := range dots {
 		dots[i] = make([]int, w)
 	}
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
-	from := until.Unix() - int64(w)*60
+	from := until.Add(-time.Duration(w) * time.Minute)
 	for _, metrics := range ms {
 		for _, m := range metrics {
-			x := int((m.Time - from) / 60)
+			x := int((m.Time - from.Unix()) / 60)
 			if 0 <= x && x < w {
 				y := int(m.Value.(float64) / maxValue * float64(h))
 				dots[y][x] = 1
@@ -44,6 +45,19 @@ func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
 		}
 		lines[(h-i)/4] = "|" + string(line)
 	}
-	lines[v.height-1] = "+" + strings.Repeat("-", v.width-1)
+	axisX := []rune("+" + strings.Repeat("-", v.width-1))
+	stepX := 30 * time.Minute
+	var axisXLabels string
+	for t := from.Truncate(stepX).Add(stepX); !until.Before(t); t = t.Add(stepX) {
+		offset := int(float64(t.Sub(from)) / float64(until.Sub(from)) * float64(v.width))
+		axisX[offset] = '+'
+		axisXLabels += strings.Repeat(" ", int(math.Max(float64(offset-len(axisXLabels)-2), 0)))
+		axisXLabels += fmt.Sprintf("%1d:%02d", t.Hour(), t.Minute())
+		if offset < 2 {
+			axisXLabels = axisXLabels[2-offset:]
+		}
+	}
+	axisXLabels += strings.Repeat(" ", int(math.Max(float64(v.width-len(axisXLabels)), 0)))
+	lines[v.height-2], lines[v.height-1] = string(axisX), axisXLabels[:v.width]
 	return lines
 }

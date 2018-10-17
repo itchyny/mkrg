@@ -86,14 +86,17 @@ func drawSeries(img draw.Image, graph graph, ms metricsByName, height, width int
 		}
 	}
 	for i, metricName := range ms.ListMetricNames(graph) {
-		prevPrevTime, prevTime, prevX, prevY := int64(0), int64(0), -1.0, 0.0
+		prevPrevTime, prevTime, nextTime, prevX, prevY := int64(0), int64(0), int64(0), -1.0, 0.0
 		metrics, seriesColor := ms[metricName], seriesColors[i%len(seriesColors)]
-		for _, m := range metrics {
+		for i, m := range metrics {
 			x := float64(m.Time-from.Unix()) * float64(width) / float64(until.Sub(from)/time.Second)
 			y := m.Value.(float64) / maxValue * float64(height)
 			if 0 <= x {
+				if i < len(metrics)-1 {
+					nextTime = metrics[i+1].Time
+				}
 				start, step := 0.0, math.Min(2.0/math.Sqrt((x-prevX)*(x-prevX)+(y-prevY)*(y-prevY)), 0.2)
-				if prevX < 0 || prevTime-3*60 < prevPrevTime && prevTime < m.Time-3*60 {
+				if prevX < 0 || prevTime < m.Time-3*60 && (prevTime-3*60 < prevPrevTime || prevPrevTime == 0 && nextTime-3*60 < m.Time) {
 					start = 1.0
 				}
 				prevPrevTime, prevTime = prevTime, m.Time

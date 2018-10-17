@@ -142,12 +142,7 @@ func drawAxisY(img draw.Image, height, width, graphLeftMargin int, from, until t
 	for i := graphLeftMargin; i < width; i++ {
 		img.Set(i, height, axisColor)
 	}
-	tick := math.Pow10(int(math.Floor(math.Log10(maxValue / 5.0))))
-	if maxValue/tick > 12 {
-		tick *= 5
-	} else if maxValue/tick > 6 {
-		tick *= 2
-	}
+	tick := getTick(maxValue)
 	format, scale := formatAxisY(tick, maxValue)
 	for y := 0.0; y < maxValue; y += tick {
 		posY := height - int(y/maxValue*float64(height))
@@ -166,6 +161,16 @@ func drawAxisY(img draw.Image, height, width, graphLeftMargin int, from, until t
 			d.DrawString(fmt.Sprintf("%4s", fmt.Sprintf(format, y/scale)))
 		}
 	}
+}
+
+func getTick(maxValue float64) float64 {
+	tick := math.Pow10(int(math.Floor(math.Log10(maxValue / 5.0))))
+	if maxValue/tick > 12 {
+		tick *= 5
+	} else if maxValue/tick > 6 {
+		tick *= 2
+	}
+	return tick
 }
 
 func formatAxisY(tick, maxValue float64) (string, float64) {

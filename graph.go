@@ -79,6 +79,6 @@ var systemGraphs = []graph{
 
 func metricNamePattern(name string) *regexp.Regexp {
 	return regexp.MustCompile(
-		"^" + strings.Replace(name, "#", `([-a-zA-Z0-9_]+)`, -1) + "$",
+		`\A` + strings.Replace(name, "#", `([-a-zA-Z0-9_]+)`, -1) + `\z`,
 	)
 }

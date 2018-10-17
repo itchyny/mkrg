@@ -27,12 +27,24 @@ func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
 	format, scale := formatAxisY(tick, maxValue)
 	from := until.Add(-time.Duration(w) * time.Minute)
 	for _, metrics := range ms {
-		for _, m := range metrics {
-			x := int((m.Time - from.Unix()) / 60)
-			if 0 <= x && x < w {
-				y := int(m.Value.(float64) / maxValue * float64(h))
-				dots[y][x] = 1
+		prevPrevTime, prevTime, nextTime, prevX, prevY := int64(0), int64(0), int64(0), -1.0, 0.0
+		for i, m := range metrics {
+			x := float64((m.Time - from.Unix()) / 60)
+			y := m.Value.(float64) / maxValue * float64(h)
+			if 0 <= x {
+				if i < len(metrics)-1 {
+					nextTime = metrics[i+1].Time
+				}
+				start, step := 0.0, math.Min(1.0/math.Sqrt((x-prevX)*(x-prevX)+(y-prevY)*(y-prevY)), 1.0)
+				if prevX < 0 || prevTime < m.Time-3*60 && (prevTime-3*60 < prevPrevTime || prevPrevTime == 0 && nextTime-3*60 < m.Time) {
+					start = 1.0
+				}
+				prevPrevTime, prevTime = prevTime, m.Time
+				for p := start; p <= 1.0; p += step {
+					dots[int(prevY*(1.0-p)+y*p)][int(prevX*(1.0-p)+x*p)] = 1
+				}
 			}
+			prevX, prevY = x, y
 		}
 	}
 	lines := make([]string, v.height)

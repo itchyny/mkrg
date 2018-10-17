@@ -63,28 +63,30 @@ func (app *App) Run() error {
 	for i := range orderChs {
 		orderChs[i] = make(chan struct{})
 	}
-	for i, graph := range systemGraphs {
-		i, graph := i, graph
+	var j int
+	for _, graph := range systemGraphs {
+		graph := graph
 		var metricNames []string
 		for _, metric := range graph.metrics {
 			metricNames = append(metricNames, filterMetricNames(metricNamesMap, metric.name)...)
 		}
 		if len(metricNames) == 0 {
-			close(orderChs[i])
 			continue
 		}
+		k := j
+		j++
 		eg.Go(func() error {
 			ms, err := app.fetchMetrics(graph, metricNames, from, until)
 			if err != nil {
 				return err
 			}
-			if i > 0 {
-				<-orderChs[i-1]
+			if k > 0 {
+				<-orderChs[k-1]
 			}
 			mu.Lock()
 			defer func() {
 				mu.Unlock()
-				close(orderChs[i])
+				close(orderChs[k])
 			}()
 			return ui.output(graph, ms)
 		})

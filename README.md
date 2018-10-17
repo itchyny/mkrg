@@ -3,12 +3,12 @@
 
 ## Screenshots
 On iTerm2, export `MKRG_VIEWER=iTerm2` to get the graphical viewer (exporting the environment variable is required when you're using ssh).
-![mkrg](https://user-images.githubusercontent.com/375258/46917836-3ad1a880-d006-11e8-86b2-bb9d82ad6b82.png)
+![mkrg](https://user-images.githubusercontent.com/375258/47090208-65696e80-d25d-11e8-936a-3fe80879ebe7.png)
 
 Sixel viewer is implemented but not tested yet (because I cannot find Sixel supported terminals on macOS).
 
 The command has simple graph viewer using Braille but it displays limited information.
-![mkrg](https://user-images.githubusercontent.com/375258/46918009-88024a00-d007-11e8-89c0-605bfe14bd94.png)
+![mkrg](https://user-images.githubusercontent.com/375258/47089990-e96f2680-d25c-11e8-9217-44765e9940e6.png)
 
 ## Installation
 ```sh

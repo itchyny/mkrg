@@ -25,11 +25,11 @@ func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
 	maxValue := math.Max(ms.MaxValue(), 1.0) * 1.1
 	tick := getTick(maxValue)
 	format, scale := formatAxisY(tick, maxValue)
-	from := until.Add(-time.Duration(w) * time.Minute)
+	from := until.Add(-time.Duration(w/2) * time.Minute)
 	for _, metrics := range ms {
 		prevPrevTime, prevTime, nextTime, prevX, prevY := int64(0), int64(0), int64(0), -1.0, 0.0
 		for i, m := range metrics {
-			x := float64((m.Time - from.Unix()) / 60)
+			x := float64((m.Time - from.Unix()) / 30)
 			y := m.Value.(float64) / maxValue * float64(h)
 			if 0 <= x {
 				if i < len(metrics)-1 {

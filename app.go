@@ -55,7 +55,7 @@ func (app *App) Run() error {
 	} else if os.Getenv("MKRG_VIEWER") == "Sixel" {
 		ui = newSixel(height, width, maxColumn, from, until)
 	} else {
-		from = until.Add(-time.Duration(width*2) * time.Minute)
+		from = until.Add(-time.Duration(width) * time.Minute)
 		ui = newTui(height, width, maxColumn, until)
 	}
 	eg, mu := errgroup.Group{}, new(sync.Mutex)

@@ -70,7 +70,7 @@ func (v *viewer) GetLines(ms metricsByName, until time.Time) []string {
 		lines[y] += string(line)
 	}
 	axisX := []rune("   0 +" + strings.Repeat("-", v.width-6))
-	stepX := 30 * time.Minute
+	stepX := 15 * time.Minute
 	var axisXLabels string
 	for t := from.Truncate(stepX); !until.Before(t); t = t.Add(stepX) {
 		offset := int(float64(t.Sub(from))/float64(until.Sub(from))*float64(v.width-6)) + 6

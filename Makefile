@@ -1,4 +1,4 @@
-BIN = mkrg
+BIN := mkrg
 
 .PHONY: all
 all: clean build

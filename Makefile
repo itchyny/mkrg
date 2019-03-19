@@ -1,11 +1,12 @@
 BIN := mkrg
+export GO111MODULE=on
 
 .PHONY: all
 all: clean build
 
 .PHONY: build
 build: deps
-	go build -o build/$(BIN) ./cmd/...
+	go build -o build/$(BIN) ./cmd/$(BIN)
 
 .PHONY: install
 install: deps
@@ -25,8 +26,7 @@ lint: lintdeps build
 
 .PHONY: lintdeps
 lintdeps:
-	go get -d -v -t ./...
-	command -v golint >/dev/null || go get -u golang.org/x/lint/golint
+	GO111MODULE=off go get -u golang.org/x/lint/golint
 
 .PHONY: clean
 clean:

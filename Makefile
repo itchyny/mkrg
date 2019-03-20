@@ -1,4 +1,5 @@
 BIN := mkrg
+BUILD_LDFLAGS := "-s -w"
 export GO111MODULE=on
 
 .PHONY: all
@@ -6,11 +7,11 @@ all: clean build
 
 .PHONY: build
 build: deps
-	go build -o build/$(BIN) ./cmd/$(BIN)
+	go build -ldflags=$(BUILD_LDFLAGS) -o build/$(BIN) ./cmd/$(BIN)
 
 .PHONY: install
 install: deps
-	go install ./...
+	go install -ldflags=$(BUILD_LDFLAGS) ./...
 
 .PHONY: deps
 deps:

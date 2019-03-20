@@ -11,6 +11,12 @@ The command has simple graph viewer using Braille.
 ![mkrg](https://user-images.githubusercontent.com/375258/47095115-8c2ca280-d267-11e8-99de-85dfb7401798.png)
 
 ## Installation
+### Homebrew
+```sh
+brew install itchyny/tap/mkrg
+```
+
+### Build from source
 ```sh
 go get -u github.com/itchyny/mkrg/cmd/mkrg
 ```

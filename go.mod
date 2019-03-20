@@ -7,7 +7,7 @@ require (
 	github.com/Songmu/timeout v0.3.1 // indirect
 	github.com/Songmu/wrapcommander v0.0.0-20190209161912-6edabfc62ab9 // indirect
 	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348 // indirect
-	github.com/mackerelio/golib v0.0.0-20190128100207-da44a97ec554 // indirect
+	github.com/mackerelio/golib v0.0.0-20190320144302-6316bf9505a9 // indirect
 	github.com/mackerelio/mackerel-agent v0.59.1
 	github.com/mackerelio/mackerel-client-go v0.2.0
 	github.com/mattn/go-sixel v0.0.0-20190216163338-cdfbdd9946b1

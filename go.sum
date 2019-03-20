@@ -8,6 +8,8 @@ github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348 h1:MtvEpTB6LX3v
 github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348/go.mod h1:B69LEHPfb2qLo0BaaOLcbitczOKLWTsrBG9LczfCD4k=
 github.com/mackerelio/golib v0.0.0-20190128100207-da44a97ec554 h1:WWDcxTOZ3CWWiNU01sCd0Mwnok+uwFS6mD59OqvwvkE=
 github.com/mackerelio/golib v0.0.0-20190128100207-da44a97ec554/go.mod h1:QQXnbzDaHtoPLMpOFWMWyLhxJMBqKEwM5gs6rz+fBxk=
+github.com/mackerelio/golib v0.0.0-20190320144302-6316bf9505a9 h1:fspvFvUVrutzEfJ8GNLmpm+wn97dQjCNdXnqkOdmXv0=
+github.com/mackerelio/golib v0.0.0-20190320144302-6316bf9505a9/go.mod h1:QQXnbzDaHtoPLMpOFWMWyLhxJMBqKEwM5gs6rz+fBxk=
 github.com/mackerelio/mackerel-agent v0.59.1 h1:j/LVSKNitrqOEjlxUoqu7WPRiYHp+Z4iVV1cE5r12Lo=
 github.com/mackerelio/mackerel-agent v0.59.1/go.mod h1:b614ah1PGezLbK1hOxmvxl9gLtG50EtAu7Us515OztY=
 github.com/mackerelio/mackerel-client-go v0.2.0 h1:U7euYxKkwR/VslijZfE3+Qegx+LPwwguC75an5JBX8o=

@@ -16,7 +16,7 @@ import (
 const (
 	cmdName     = "mkrg"
 	description = "Mackerel graph viewer in terminal"
-	version     = "0.0.0"
+	version     = "0.0.1"
 	author      = "itchyny"
 )
 

@@ -5,17 +5,3 @@ env: PATH=/home/travis/gopath/bin:$PATH
 script:
   - make test
   - make lint
-
-before_deploy:
-  - make cross
-deploy:
-  provider: releases
-  skip_cleanup: true
-  api_key:
-    secure: UVPQT3by/0eDmFR8N44KiR8EmOcI6Weg5anlhYbSICF/6Z4XII90TgFtMtWAG/K4PGAtoWpCFNE+8ldouBBuG6oHIDW9sKTCd9rOogVPwxKAFAkVmI235Z+G2kbLrw/CKGz399++eG3eQ+T9pZM2uxe0aN0kSOsCTRHLWUu9EH2YZbb6f7kDwKO4xi08SCB8d82FXYhg5PR0klJdWx/i2W+aw5gDwl6SnboXwChp1F1QC7r1ck95iLhir3qrb9qIfbZziL7hLsfUlHrAL1JSa0VhwDZfOqI1i0Ef0tykvaVvNziUju9KmVL9lwxGywt7MgkQ+o1uBSUI+iM0IqIrwoE8aLCkCj16iOyO0Of7T0AH+Lp+9gJyFAMKKpj0eUrd7hwNKlRBMGd6etpAoQmYivi4se2xaVjPM1mxlo+HZxLLUJppTDIk0SjHZSGJhdzvmdBi1mSEjY9x3cZzXib3gc7RXcbuCt6VhiOwh/BMZlZyPif0wrImW0uHrJPAgCOzSbPEPlhXDxsTc77sHGDMjVk4jpanSz27WqHpSW7fifqpy2EDZwiC8XvcaMoXlGXjMHP1k/P48bu75paXAyHrsegI1tBf7hi+G80o9LXpjNdW7V0i9Ch01v5DTPbjLEjwLJKi/u402FK9TT6DezKlft15rdtjaPD/hjRocGdBpXc=
-  file: goxz/*
-  file_glob: true
-  on:
-    repo: itchyny/mkrg
-    tags: true
-    all_branches: false

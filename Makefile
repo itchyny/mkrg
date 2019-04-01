@@ -1,6 +1,6 @@
 BIN := mkrg
 BUILD_LDFLAGS := "-s -w"
-VERSION = $$(gobump show -r cmd/$(BIN))
+VERSION = $$(make show-version)
 export GO111MODULE=on
 
 .PHONY: all
@@ -18,8 +18,13 @@ install: deps
 deps:
 	go get -d -v ./...
 
+.PHONY: show-version
+show-version:
+	@GO111MODULE=off go get github.com/motemen/gobump/cmd/gobump
+	@gobump show -r cmd/$(BIN)
+
 .PHONY: cross
-cross: crossdeps bumpdeps
+cross: crossdeps
 	goxz -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) ./cmd/$(BIN)
 
 .PHONY: crossdeps
@@ -45,7 +50,7 @@ clean:
 	go clean
 
 .PHONY: bump
-bump: bumpdeps
+bump:
 	@git status --porcelain | grep "^" && echo "git workspace is dirty" >/dev/stderr && exit 1 || :
 	gobump set $(shell sh -c 'read -p "input next version (current: $(VERSION)): " v && echo $$v') -w cmd/$(BIN)
 	git commit -am "bump up version to $(VERSION)"
@@ -53,18 +58,14 @@ bump: bumpdeps
 	git push
 	git push --tags
 
-.PHONY: bumpdeps
-bumpdeps:
-	GO111MODULE=off go get github.com/motemen/gobump/cmd/gobump
-
 .PHONY: crossdocker
 crossdocker:
 	docker run --rm -v `pwd`:"/$${PWD##*/}" -w "/$${PWD##*/}" golang make cross
 
 .PHONY: upload
-upload: bumpdeps
+upload:
 	GO111MODULE=off go get github.com/tcnksm/ghr
-	ghr v$(VERSION) goxz
+	ghr "v$(VERSION)" goxz
 
 .PHONY: release
 release: test lint clean bump crossdocker upload

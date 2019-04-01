@@ -19,7 +19,7 @@ deps:
 	go get -d -v ./...
 
 .PHONY: cross
-cross: crossdeps
+cross: crossdeps bumpdeps
 	goxz -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) ./cmd/$(BIN)
 
 .PHONY: crossdeps
@@ -45,8 +45,7 @@ clean:
 	go clean
 
 .PHONY: bump
-bump:
-	GO111MODULE=off go get github.com/motemen/gobump/cmd/gobump
+bump: bumpdeps
 	@git status --porcelain | grep "^" && echo "git workspace is dirty" >/dev/stderr && exit 1 || :
 	gobump set $(shell sh -c 'read -p "input next version (current: $(VERSION)): " v && echo $$v') -w cmd/$(BIN)
 	git commit -am "bump up version to $(VERSION)"
@@ -54,12 +53,16 @@ bump:
 	git push
 	git push --tags
 
+.PHONY: bumpdeps
+bumpdeps:
+	GO111MODULE=off go get github.com/motemen/gobump/cmd/gobump
+
 .PHONY: crossdocker
 crossdocker:
 	docker run --rm -v `pwd`:"/$${PWD##*/}" -w "/$${PWD##*/}" golang make cross
 
 .PHONY: upload
-upload:
+upload: bumpdeps
 	GO111MODULE=off go get github.com/tcnksm/ghr
 	ghr v$(VERSION) goxz
 

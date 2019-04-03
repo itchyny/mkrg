@@ -7,16 +7,12 @@ export GO111MODULE=on
 all: clean build
 
 .PHONY: build
-build: deps
+build:
 	go build -ldflags=$(BUILD_LDFLAGS) -o build/$(BIN) ./cmd/$(BIN)
 
 .PHONY: install
-install: deps
+install:
 	go install -ldflags=$(BUILD_LDFLAGS) ./...
-
-.PHONY: deps
-deps:
-	go get -d -v ./...
 
 .PHONY: show-version
 show-version:
@@ -28,7 +24,7 @@ cross: crossdeps
 	goxz -pv=v$(VERSION) -build-ldflags=$(BUILD_LDFLAGS) ./cmd/$(BIN)
 
 .PHONY: crossdeps
-crossdeps: deps
+crossdeps:
 	GO111MODULE=off go get github.com/Songmu/goxz/cmd/goxz
 
 .PHONY: test

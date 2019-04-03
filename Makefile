@@ -1,6 +1,7 @@
 BIN := mkrg
 BUILD_LDFLAGS := "-s -w"
 VERSION = $$(make show-version)
+VERSION_PATH := cmd/$(BIN)
 export GO111MODULE=on
 
 .PHONY: all
@@ -17,7 +18,7 @@ install:
 .PHONY: show-version
 show-version:
 	@GO111MODULE=off go get github.com/motemen/gobump/cmd/gobump
-	@gobump show -r cmd/$(BIN)
+	@gobump show -r $(VERSION_PATH)
 
 .PHONY: cross
 cross: crossdeps
@@ -48,7 +49,7 @@ clean:
 .PHONY: bump
 bump:
 	@git status --porcelain | grep "^" && echo "git workspace is dirty" >/dev/stderr && exit 1 || :
-	gobump set $(shell sh -c 'read -p "input next version (current: $(VERSION)): " v && echo $$v') -w cmd/$(BIN)
+	gobump set $(shell sh -c 'read -p "input next version (current: $(VERSION)): " v && echo $$v') -w $(VERSION_PATH)
 	git commit -am "bump up version to $(VERSION)"
 	git tag "v$(VERSION)"
 	git push

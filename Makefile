@@ -1,6 +1,6 @@
 BIN := mkrg
 BUILD_LDFLAGS := "-s -w"
-VERSION := $$(make show-version)
+VERSION := $$(make -s show-version)
 VERSION_PATH := cmd/$(BIN)
 export GO111MODULE=on
 

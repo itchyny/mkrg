@@ -17,7 +17,7 @@ install:
 
 .PHONY: show-version
 show-version:
-	@GO111MODULE=off go get github.com/motemen/gobump/cmd/gobump
+	@cd && go get github.com/motemen/gobump/cmd/gobump
 	@gobump show -r $(VERSION_PATH)
 
 .PHONY: cross
@@ -26,7 +26,7 @@ cross: crossdeps
 
 .PHONY: crossdeps
 crossdeps:
-	GO111MODULE=off go get github.com/Songmu/goxz/cmd/goxz
+	cd && go get github.com/Songmu/goxz/cmd/goxz
 
 .PHONY: test
 test: build
@@ -39,7 +39,7 @@ lint: lintdeps
 
 .PHONY: lintdeps
 lintdeps:
-	GO111MODULE=off go get golang.org/x/lint/golint
+	cd && go get golang.org/x/lint/golint
 
 .PHONY: clean
 clean:
@@ -61,7 +61,7 @@ crossdocker:
 
 .PHONY: upload
 upload:
-	GO111MODULE=off go get github.com/tcnksm/ghr
+	cd && go get github.com/tcnksm/ghr
 	ghr "v$(VERSION)" goxz
 
 .PHONY: release

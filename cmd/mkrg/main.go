@@ -6,11 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/itchyny/mkrg"
 	"github.com/mackerelio/mackerel-agent/config"
 	"github.com/mackerelio/mackerel-client-go"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
+
+	"github.com/itchyny/mkrg"
 )
 
 const (

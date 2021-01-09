@@ -1,2 +1,5 @@
-/goxz
 /mkrg
+/goxz
+*.exe
+*.test
+*.out

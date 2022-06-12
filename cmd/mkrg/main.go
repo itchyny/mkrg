@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -112,9 +111,9 @@ func setupClientHostID(ctx *cli.Context) (*mackerel.Client, string, error) {
 }
 
 func loadHostID(root string) (string, error) {
-	content, err := ioutil.ReadFile(filepath.Join(root, "id"))
+	cnt, err := os.ReadFile(filepath.Join(root, "id"))
 	if err != nil {
 		return "", err
 	}
-	return string(content), nil
+	return string(cnt), nil
 }

@@ -1,5 +1,7 @@
-# mkrg [![CI Status](https://github.com/itchyny/mkrg/workflows/CI/badge.svg)](https://github.com/itchyny/mkrg/actions)
-[Mackerel](https://mackerel.io) graph viewer in terminal.
+# mkrg
+[![CI Status](https://github.com/itchyny/mkrg/workflows/CI/badge.svg)](https://github.com/itchyny/mkrg/actions)
+
+[Mackerel](https://mackerel.io) graph viewer in terminal
 
 ## Screenshots
 On iTerm2, export `MKRG_VIEWER=iTerm2` to get the graphical viewer (exporting the environment variable is required when you're using ssh).

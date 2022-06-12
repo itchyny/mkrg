@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/mackerelio/mackerel-client-go"
-	"golang.org/x/crypto/ssh/terminal"
 	"golang.org/x/sync/errgroup"
+	"golang.org/x/term"
 )
 
 // App ...
@@ -32,7 +32,7 @@ func (app *App) Run() error {
 	if err != nil {
 		return err
 	}
-	termWidth, _, err := terminal.GetSize(0)
+	termWidth, _, err := term.GetSize(0)
 	if err != nil {
 		return err
 	}

@@ -18,7 +18,7 @@ brew install itchyny/tap/mkrg
 
 ### Build from source
 ```sh
-go get github.com/itchyny/mkrg/cmd/mkrg
+go install github.com/itchyny/mkrg/cmd/mkrg@latest
 ```
 
 ## Bug Tracker

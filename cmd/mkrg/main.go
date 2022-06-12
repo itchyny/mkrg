@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/mackerelio/mackerel-agent/config"
 	"github.com/mackerelio/mackerel-client-go"
@@ -64,15 +67,20 @@ func run(args []string) error {
 }
 
 func setupClientHostID(ctx *cli.Context) (*mackerel.Client, string, error) {
-	var conf *config.Config
-	var err error
-	var apiKey, apiBase string
-
-	apiKey = os.Getenv("MACKEREL_APIKEY")
-	if apiKey == "" {
-		confFile := config.DefaultConfig.Conffile
-		conf, err = config.LoadConfig(confFile)
+	conf, err := config.LoadConfig(config.DefaultConfig.Conffile)
+	if runtime.GOOS == "darwin" && err != nil && os.IsNotExist(err) {
+		out, err := exec.Command("brew", "--prefix").Output()
 		if err != nil {
+			return nil, "", err
+		}
+		brewPrefix, _, _ := strings.Cut(string(out), "\n")
+		conffile := filepath.Join(brewPrefix, "etc", "mackerel-agent.conf")
+		conf, _ = config.LoadConfig(conffile)
+	}
+
+	apiKey, apiBase := os.Getenv("MACKEREL_APIKEY"), ""
+	if apiKey == "" {
+		if conf == nil {
 			return nil, "", errors.New("MACKEREL_APIKEY not set")
 		}
 		apiKey = conf.Apikey
@@ -91,6 +99,9 @@ func setupClientHostID(ctx *cli.Context) (*mackerel.Client, string, error) {
 
 	hostID := ctx.GlobalString("host")
 	if hostID == "" {
+		if conf == nil {
+			return nil, "", errors.New("specify host id")
+		}
 		hostID, err = loadHostID(conf.Root)
 		if err != nil {
 			return nil, "", errors.New("specify host id")
